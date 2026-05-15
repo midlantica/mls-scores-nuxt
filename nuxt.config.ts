@@ -18,8 +18,8 @@ export default defineNuxtConfig({
     preset: 'netlify'
   },
 
-  // SSR on so the API route runs server-side; page shell is pre-rendered
-  ssr: true,
+  // Client-side rendering only — avoids hydration mismatches on dynamic live data
+  ssr: false,
 
   app: {
     head: {
