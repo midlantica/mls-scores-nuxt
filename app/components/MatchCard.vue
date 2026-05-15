@@ -7,23 +7,9 @@ const props = defineProps<{
   hideTime?: boolean   // hide kickoff time from centre (By Time mode — time is in slot heading)
 }>()
 
-function beerCount(q: number): number {
-  if (q >= 35) return 3
-  if (q >= 20) return 2
-  if (q >= 8)  return 1
-  return 0
-}
-
-function qualityClass(q: number): string {
-  if (q >= 35) return 'hot'
-  if (q >= 20) return 'great'
-  if (q >= 8)  return 'good'
-  return 'low'
-}
-
-const beers = computed(() => beerCount(props.match.qualityScore))
-const qClass = computed(() => qualityClass(props.match.qualityScore))
-const showQuality = computed(() => props.match.status.code !== 'ft' && beers.value > 0)
+// 🔥 shown only when both teams are among the winningest — high combined points
+const isHot = computed(() => props.match.qualityScore >= 35)
+const showFire = computed(() => props.match.status.code !== 'ft' && isHot.value)
 
 const dayDateLabel = computed(() => {
   if (!props.match.date) return ''
@@ -90,11 +76,9 @@ const dayDateLabel = computed(() => {
       </div>
     </div>
 
-    <!-- Beer quality indicator -->
-    <div v-if="showQuality" class="quality-row">
-      <span class="beers" :class="`beers-${qClass}`">
-        <span v-for="n in beers" :key="n">🍺</span>
-      </span>
+    <!-- 🔥 Fire badge for top matchups -->
+    <div v-if="showFire" class="quality-row">
+      <span class="fire-badge">🔥</span>
     </div>
   </div>
 </template>
@@ -111,14 +95,6 @@ const dayDateLabel = computed(() => {
 .match-card:hover {
   border-color: rgb(255 255 255 / 0.14);
   background: rgb(255 255 255 / 0.05);
-}
-.match-card.quality-hot {
-  border-color: rgb(251 146 60 / 0.3);
-  background: rgb(251 146 60 / 0.04);
-}
-.match-card.quality-great {
-  border-color: rgb(99 102 241 / 0.25);
-  background: rgb(99 102 241 / 0.03);
 }
 
 /* Day + date header row */
@@ -280,18 +256,14 @@ const dayDateLabel = computed(() => {
   color: rgb(107 114 128);
 }
 
-/* ── Quality beers ── */
+/* ── Fire badge ── */
 .quality-row {
   margin-top: 0.25rem;
   display: flex;
   justify-content: center;
 }
-.beers {
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  opacity: 0.85;
+.fire-badge {
+  font-size: 0.875rem;
+  line-height: 1;
 }
-.beers-hot   { opacity: 1; }
-.beers-great { opacity: 0.9; }
-.beers-good  { opacity: 0.7; }
 </style>
