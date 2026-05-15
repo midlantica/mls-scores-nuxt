@@ -158,12 +158,21 @@ export function useScores() {
     w.error = null
     try {
       const data = await $fetch<Record<string, unknown>>(`/api/scores?week=${tab}`)
-      w.matches = transformMatches(data)
-      w.label = (data._weekLabel as string) || w.label
-      w.loaded = true
+      // Server returns _error:true when ESPN is down and no cache exists
+      // In that case keep existing matches (stale) rather than clearing them
+      if (!data._error) {
+        w.matches = transformMatches(data)
+        w.label = (data._weekLabel as string) || w.label
+        w.loaded = true
+      }
+      // Always update timestamp so user knows we tried
       lastUpdated.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        + (data._stale ? ' ·' : '')
     } catch (e: unknown) {
-      w.error = e instanceof Error ? e.message : 'Failed to load scores'
+      // Network-level failure (e.g. offline) — fail silently if we have data
+      if (!w.loaded) {
+        w.error = 'Unable to load scores. Please try again.'
+      }
     } finally {
       w.loading = false
     }

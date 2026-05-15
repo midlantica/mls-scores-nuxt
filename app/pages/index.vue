@@ -188,9 +188,8 @@ if (weeks.this.matches.length === 0) {
             {{ weeks[activeTab].loading ? 'Loading…' : lastUpdated ? `Updated ${lastUpdated}` : '' }}
           </span>
           <button
-            v-if="mainTab === 'scores'"
             class="btn-refresh"
-            :disabled="weeks[activeTab].loading"
+            :disabled="weeks[activeTab].loading || mainTab !== 'scores'"
             @click="fetchWeek(activeTab)"
           >
             ↻ Refresh
@@ -368,7 +367,7 @@ if (weeks.this.matches.length === 0) {
 .page {
   max-width: 56rem;
   margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+  padding: 1rem 1rem 2rem;
 }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -399,11 +398,11 @@ if (weeks.this.matches.length === 0) {
   color: rgb(75 85 99);
 }
 .btn-refresh {
-  font-size: 0.6875rem;
+  font-size: 0.6rem;
   color: rgb(107 114 128);
   border: 1px solid rgb(255 255 255 / 0.1);
   border-radius: 0.375rem;
-  padding: 0.3125rem 0.625rem;
+  padding: 0.25rem 0.5rem;
   background: transparent;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -413,6 +412,7 @@ if (weeks.this.matches.length === 0) {
   color: rgb(209 213 219);
 }
 .btn-refresh:disabled { opacity: 0.4; cursor: default; }
+.btn-refresh.invisible { visibility: hidden; }
 
 /* ── Header right: two rows, flush right ───────────────────────────────── */
 .header-right {
@@ -563,7 +563,7 @@ if (weeks.this.matches.length === 0) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.3125rem 0.625rem;
+  padding: 0.4rem 1.25rem;
   border-radius: 0.375rem;
   border: 1px solid transparent;
   background: transparent;
@@ -684,7 +684,7 @@ if (weeks.this.matches.length === 0) {
 
 /* ── Footer ─────────────────────────────────────────────────────────────── */
 .footer {
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid rgb(255 255 255 / 0.06);
   font-size: 0.6875rem;

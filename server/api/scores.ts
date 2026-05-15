@@ -2,6 +2,9 @@
 // Supports ?week=last|this|next (defaults to 'this')
 // or ?date=YYYYMMDD for a single day
 // or ?from=YYYYMMDD&to=YYYYMMDD for a range
+//
+// In-memory cache: ESPN is called at most once per 90 seconds per cache key.
+// On ESPN failure, stale cached data is returned silently (no error screen).
 
 function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10).replace(/-/g, '')
@@ -9,7 +12,6 @@ function toDateStr(d: Date): string {
 
 function weekRange(offset: number): { from: string; to: string; label: string } {
   const now = new Date()
-  // Find Monday of the current week (CT)
   const day = now.getDay() // 0=Sun
   const diffToMon = day === 0 ? -6 : 1 - day
   const monday = new Date(now)
@@ -24,6 +26,16 @@ function weekRange(offset: number): { from: string; to: string; label: string } 
 
   return { from: toDateStr(monday), to: toDateStr(sunday), label }
 }
+
+// ── In-memory cache ───────────────────────────────────────────────────────────
+const CACHE_TTL_MS = 90_000 // 90 seconds
+
+interface CacheEntry {
+  data: Record<string, unknown>
+  fetchedAt: number
+}
+
+const cache = new Map<string, CacheEntry>()
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
@@ -47,13 +59,36 @@ export default defineEventHandler(async (event) => {
     label = range.label
   }
 
+  const cacheKey = `${from}-${to}`
+  const now = Date.now()
+  const cached = cache.get(cacheKey)
+
+  // Return cached data if still fresh
+  if (cached && now - cached.fetchedAt < CACHE_TTL_MS) {
+    return cached.data
+  }
+
   const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=${from}-${to}`
 
   try {
     const data = await $fetch<Record<string, unknown>>(url)
-    return { ...data, _weekLabel: label, _from: from, _to: to }
+    const result = { ...data, _weekLabel: label, _from: from, _to: to }
+    cache.set(cacheKey, { data: result, fetchedAt: now })
+    return result
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    throw createError({ statusCode: 502, message: `ESPN API error: ${message}` })
+    // On ESPN failure: return stale cache if available (silent degradation)
+    if (cached) {
+      return { ...cached.data, _stale: true }
+    }
+    // No cache at all — return empty scoreboard shape so UI shows "no matches"
+    // instead of a red error screen
+    return {
+      events: [],
+      _weekLabel: label,
+      _from: from,
+      _to: to,
+      _stale: true,
+      _error: true,
+    }
   }
 })

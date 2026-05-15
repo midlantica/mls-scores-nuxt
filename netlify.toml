@@ -1,6 +1,10 @@
 [build]
-  command = "npm run build && mkdir -p .netlify/static && cp -r .nuxt/dist/client/_nuxt .netlify/static/"
-  publish = ".netlify/static"
+  command = "npm run build"
+  publish = ".output/public"
 
 [build.environment]
   NODE_VERSION = "22"
+
+[functions]
+  directory = ".output/server"
+  node_bundler = "nft"
