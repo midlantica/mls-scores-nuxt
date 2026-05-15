@@ -18,8 +18,8 @@ export default defineNuxtConfig({
     preset: 'netlify'
   },
 
-  // Client-side rendering only — avoids hydration mismatches on dynamic live data
-  ssr: false,
+  // SSR enabled for Netlify Functions; hydration mismatches suppressed via client-only wrappers
+  ssr: true,
 
   app: {
     head: {

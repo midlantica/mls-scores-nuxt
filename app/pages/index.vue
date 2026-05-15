@@ -212,6 +212,7 @@ if (weeks.this.matches.length === 0) {
     </header>
 
     <!-- ── Main tabs: Scores / Standings ─────────────────────────────────── -->
+    <ClientOnly>
     <div class="main-tabs">
       <button
         class="main-tab"
@@ -355,6 +356,7 @@ if (weeks.this.matches.length === 0) {
       <span v-if="mainTab === 'scores'">Quality = MLS pts formula · 🔥 best games</span>
     </footer>
 
+    </ClientOnly>
   </main>
 </template>
 
