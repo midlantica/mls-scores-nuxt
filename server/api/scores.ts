@@ -10,7 +10,11 @@ function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10).replace(/-/g, '')
 }
 
-function weekRange(offset: number): { from: string; to: string; label: string } {
+function weekRange(offset: number): {
+  from: string
+  to: string
+  label: string
+} {
   const now = new Date()
   const day = now.getDay() // 0=Sun
   const diffToMon = day === 0 ? -6 : 1 - day
@@ -20,9 +24,10 @@ function weekRange(offset: number): { from: string; to: string; label: string } 
   const sunday = new Date(monday)
   sunday.setDate(monday.getDate() + 6)
 
-  const label = monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    + ' – '
-    + sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  const label =
+    monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+    ' – ' +
+    sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
   return { from: toDateStr(monday), to: toDateStr(sunday), label }
 }
@@ -52,7 +57,8 @@ export default defineEventHandler(async (event) => {
     to = query.to as string
     label = `${from}–${to}`
   } else {
-    const weekOffset = query.week === 'last' ? -1 : query.week === 'next' ? 1 : 0
+    const weekOffset =
+      query.week === 'last' ? -1 : query.week === 'next' ? 1 : 0
     const range = weekRange(weekOffset)
     from = range.from
     to = range.to

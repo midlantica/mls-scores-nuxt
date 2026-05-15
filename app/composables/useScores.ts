@@ -8,17 +8,17 @@ export interface MatchStatus {
 
 export interface Match {
   id: string
-  date: string          // ISO 8601 — format at display time via useTimezone
+  date: string // ISO 8601 — format at display time via useTimezone
   home: string
   homeRec: string
   homeScore: string | null
-  homeColor: string     // hex color for home team swatch
+  homeColor: string // hex color for home team swatch
   away: string
   awayRec: string
   awayScore: string | null
-  awayColor: string     // hex color for away team swatch
+  awayColor: string // hex color for away team swatch
   status: MatchStatus
-  kickoffSlot: number   // UTC epoch ms rounded to nearest 30min — for slot grouping
+  kickoffSlot: number // UTC epoch ms rounded to nearest 30min — for slot grouping
   qualityScore: number
 }
 
@@ -65,7 +65,8 @@ function normalizeTeamName(name: string): string {
 function resolveTeamColor(color?: string, alternateColor?: string): string {
   const primary = color ? `#${color.replace(/^#/, '')}` : ''
   const alternate = alternateColor ? `#${alternateColor.replace(/^#/, '')}` : ''
-  if (!primary || primary.toLowerCase() === '#000000') return alternate || '#888888'
+  if (!primary || primary.toLowerCase() === '#000000')
+    return alternate || '#888888'
   return primary
 }
 
@@ -85,8 +86,12 @@ function toKickoffSlot(iso: string): number {
 }
 
 function parseRecord(competitor: Record<string, unknown>): string {
-  const records = competitor.records as Array<Record<string, unknown>> | undefined
-  const rec = records?.find(r => r.type === 'total' || r.abbreviation === 'Total')
+  const records = competitor.records as
+    | Array<Record<string, unknown>>
+    | undefined
+  const rec = records?.find(
+    (r) => r.type === 'total' || r.abbreviation === 'Total'
+  )
   return rec ? (rec.summary as string) : '–'
 }
 
@@ -105,31 +110,41 @@ function parseStatus(evt: Record<string, unknown>): MatchStatus {
 
 export function transformMatches(data: Record<string, unknown>): Match[] {
   const events = (data.events as Array<Record<string, unknown>>) || []
-  return events.map(evt => {
-    const comp = (evt.competitions as Array<Record<string, unknown>>)?.[0] || {}
-    const competitors = (comp.competitors as Array<Record<string, unknown>>) || []
-    const home = competitors.find(c => c.homeAway === 'home') || {}
-    const away = competitors.find(c => c.homeAway === 'away') || {}
-    const homeTeam = home.team as Record<string, unknown> | undefined
-    const awayTeam = away.team as Record<string, unknown> | undefined
-    const homeRec = parseRecord(home)
-    const awayRec = parseRecord(away)
-    return {
-      id: evt.id as string,
-      date: evt.date as string,
-      home: normalizeTeamName((homeTeam?.displayName as string) || '?'),
-      homeRec,
-      homeScore: (home.score as string) ?? null,
-      homeColor: resolveTeamColor(homeTeam?.color as string, homeTeam?.alternateColor as string),
-      away: normalizeTeamName((awayTeam?.displayName as string) || '?'),
-      awayRec,
-      awayScore: (away.score as string) ?? null,
-      awayColor: resolveTeamColor(awayTeam?.color as string, awayTeam?.alternateColor as string),
-      status: parseStatus(evt),
-      kickoffSlot: toKickoffSlot(evt.date as string),
-      qualityScore: calcQuality(homeRec, awayRec),
-    }
-  }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  return events
+    .map((evt) => {
+      const comp =
+        (evt.competitions as Array<Record<string, unknown>>)?.[0] || {}
+      const competitors =
+        (comp.competitors as Array<Record<string, unknown>>) || []
+      const home = competitors.find((c) => c.homeAway === 'home') || {}
+      const away = competitors.find((c) => c.homeAway === 'away') || {}
+      const homeTeam = home.team as Record<string, unknown> | undefined
+      const awayTeam = away.team as Record<string, unknown> | undefined
+      const homeRec = parseRecord(home)
+      const awayRec = parseRecord(away)
+      return {
+        id: evt.id as string,
+        date: evt.date as string,
+        home: normalizeTeamName((homeTeam?.displayName as string) || '?'),
+        homeRec,
+        homeScore: (home.score as string) ?? null,
+        homeColor: resolveTeamColor(
+          homeTeam?.color as string,
+          homeTeam?.alternateColor as string
+        ),
+        away: normalizeTeamName((awayTeam?.displayName as string) || '?'),
+        awayRec,
+        awayScore: (away.score as string) ?? null,
+        awayColor: resolveTeamColor(
+          awayTeam?.color as string,
+          awayTeam?.alternateColor as string
+        ),
+        status: parseStatus(evt),
+        kickoffSlot: toKickoffSlot(evt.date as string),
+        qualityScore: calcQuality(homeRec, awayRec),
+      }
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 }
 
 // ── Composable ────────────────────────────────────────────────────────────────
@@ -143,9 +158,27 @@ export interface WeekData {
 
 export function useScores() {
   const weeks = reactive<Record<WeekTab, WeekData>>({
-    last: { matches: [], label: 'Last Week', loading: false, error: null, loaded: false },
-    this: { matches: [], label: 'This Week', loading: false, error: null, loaded: false },
-    next: { matches: [], label: 'Next Week', loading: false, error: null, loaded: false },
+    last: {
+      matches: [],
+      label: 'Last Week',
+      loading: false,
+      error: null,
+      loaded: false,
+    },
+    this: {
+      matches: [],
+      label: 'This Week',
+      loading: false,
+      error: null,
+      loaded: false,
+    },
+    next: {
+      matches: [],
+      label: 'Next Week',
+      loading: false,
+      error: null,
+      loaded: false,
+    },
   })
 
   const activeTab = ref<WeekTab>('this')
@@ -157,7 +190,9 @@ export function useScores() {
     w.loading = true
     w.error = null
     try {
-      const data = await $fetch<Record<string, unknown>>(`/api/scores?week=${tab}`)
+      const data = await $fetch<Record<string, unknown>>(
+        `/api/scores?week=${tab}`
+      )
       // Server returns _error:true when ESPN is down and no cache exists
       // In that case keep existing matches (stale) rather than clearing them
       if (!data._error) {
@@ -166,8 +201,11 @@ export function useScores() {
         w.loaded = true
       }
       // Always update timestamp so user knows we tried
-      lastUpdated.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        + (data._stale ? ' ·' : '')
+      lastUpdated.value =
+        new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }) + (data._stale ? ' ·' : '')
     } catch {
       // Network-level failure — always fail silently, never show error screen
       // If we have no data yet, matches stays empty (shows "No matches found")

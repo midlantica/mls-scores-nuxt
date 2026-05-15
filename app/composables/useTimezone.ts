@@ -15,16 +15,31 @@ function detectTzCode(): TzCode {
   try {
     const iana = Intl.DateTimeFormat().resolvedOptions().timeZone
     // Direct matches
-    if (iana === 'America/New_York' || iana === 'America/Detroit' || iana === 'America/Indiana/Indianapolis') return 'ET'
+    if (
+      iana === 'America/New_York' ||
+      iana === 'America/Detroit' ||
+      iana === 'America/Indiana/Indianapolis'
+    )
+      return 'ET'
     if (iana === 'America/Chicago' || iana === 'America/Menominee') return 'CT'
-    if (iana === 'America/Denver' || iana === 'America/Boise' || iana === 'America/Phoenix') return 'MT'
-    if (iana === 'America/Los_Angeles' || iana === 'America/Anchorage' || iana === 'America/Honolulu') return 'PT'
+    if (
+      iana === 'America/Denver' ||
+      iana === 'America/Boise' ||
+      iana === 'America/Phoenix'
+    )
+      return 'MT'
+    if (
+      iana === 'America/Los_Angeles' ||
+      iana === 'America/Anchorage' ||
+      iana === 'America/Honolulu'
+    )
+      return 'PT'
     // Fallback: compare UTC offset to find nearest zone
     const offset = -new Date().getTimezoneOffset() // minutes east of UTC
-    if (offset >= -240) return 'ET'  // UTC-4 or less negative
-    if (offset >= -360) return 'CT'  // UTC-5 or UTC-6
-    if (offset >= -420) return 'MT'  // UTC-7
-    return 'PT'                       // UTC-8 or further west
+    if (offset >= -240) return 'ET' // UTC-4 or less negative
+    if (offset >= -360) return 'CT' // UTC-5 or UTC-6
+    if (offset >= -420) return 'MT' // UTC-7
+    return 'PT' // UTC-8 or further west
   } catch {
     return 'CT'
   }
@@ -34,17 +49,37 @@ function detectTzCode(): TzCode {
 const selectedTz = ref<TzCode>(detectTzCode())
 
 export function useTimezone() {
+  function setTz(code: TzCode) {
+    selectedTz.value = code
+  }
+
   function ianaForCode(code: TzCode): string {
-    return TZ_OPTIONS.find(t => t.code === code)?.iana ?? 'America/Chicago'
+    return TZ_OPTIONS.find((t) => t.code === code)?.iana ?? 'America/Chicago'
   }
 
   const iana = computed(() => ianaForCode(selectedTz.value))
 
+  /** Split a locale time string into [time, ampm] e.g. ["3:30", "PM"] */
+  function splitAmPm(str: string): [string, string] {
+    const match = str.match(/^([\d:]+)\s*(AM|PM)$/i)
+    if (match) return [match[1]!, match[2]!.toUpperCase()]
+    return [str, '']
+  }
+
   /** Format an ISO date string as "3:30 PM" in the selected timezone */
   function formatTime(iso: string): string {
     return new Date(iso).toLocaleTimeString('en-US', {
-      hour: 'numeric', minute: '2-digit', hour12: true, timeZone: iana.value,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: iana.value,
     })
+  }
+
+  /** Format an ISO date string as HTML with AM/PM in a smaller span */
+  function formatTimeHtml(iso: string): string {
+    const [time, ampm] = splitAmPm(formatTime(iso))
+    return ampm ? `${time}<span class="ampm">${ampm}</span>` : time
   }
 
   /** Round ISO date to nearest 30-min slot label in the selected timezone */
@@ -57,9 +92,26 @@ export function useTimezone() {
     const slot = new Date(d)
     slot.setUTCHours(h, m, 0, 0)
     return slot.toLocaleTimeString('en-US', {
-      hour: 'numeric', minute: '2-digit', hour12: true, timeZone: iana.value,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: iana.value,
     })
   }
 
-  return { selectedTz, iana, formatTime, kickoffKey }
+  /** Round ISO date to nearest 30-min slot label as HTML with AM/PM in a smaller span */
+  function kickoffKeyHtml(iso: string): string {
+    const [time, ampm] = splitAmPm(kickoffKey(iso))
+    return ampm ? `${time}<span class="ampm">${ampm}</span>` : time
+  }
+
+  return {
+    selectedTz,
+    setTz,
+    iana,
+    formatTime,
+    formatTimeHtml,
+    kickoffKey,
+    kickoffKeyHtml,
+  }
 }

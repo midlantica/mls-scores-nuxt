@@ -1,30 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700&display=swap');
-@import "tailwindcss";
-@plugin "@tailwindcss/typography";
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 body {
   @apply bg-gray-950;
 }
 
-
 @theme {
-  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* ── Tropical Mint palette ─────────────────────────────────────────────── */
-  --color-tropical-mint-50:  oklch(97.95% 0.028 180.30);
+  --color-tropical-mint-50: oklch(97.95% 0.028 180.3);
   --color-tropical-mint-100: oklch(96.19% 0.054 180.49);
   --color-tropical-mint-200: oklch(93.14% 0.101 178.57);
   --color-tropical-mint-300: oklch(90.94% 0.138 176.24);
   --color-tropical-mint-400: oklch(89.58% 0.163 173.33);
   --color-tropical-mint-500: oklch(88.93% 0.177 169.75);
   --color-tropical-mint-600: oklch(75.18% 0.149 170.02);
-  --color-tropical-mint-700: oklch(60.77% 0.120 170.45);
+  --color-tropical-mint-700: oklch(60.77% 0.12 170.45);
   --color-tropical-mint-800: oklch(45.43% 0.089 171.26);
   --color-tropical-mint-900: oklch(28.63% 0.055 173.44);
   --color-tropical-mint-950: oklch(23.23% 0.044 174.46);
 
   /* ── Semantic text colours ─────────────────────────────────────────────── */
-  --color-text-primary:   oklab(96.4% -0.002 -0.006);  /* near-white — team names, scores */
-  --color-text-secondary: oklab(45% 0 0);              /* muted neutral grey — labels, table cells */
-  --color-text-accent:    oklab(88.5% -0.107 0.042);   /* bright mint-green — live, rank-up, gd+ */
+  --color-text-primary: oklab(
+    96.4% -0.002 -0.006
+  ); /* near-white — team names, scores */
+  --color-text-secondary: oklab(
+    45% 0 0
+  ); /* muted neutral grey — labels, table cells */
+  --color-text-accent: oklab(
+    88.5% -0.107 0.042
+  ); /* bright mint-green — live, rank-up, gd+ */
 }

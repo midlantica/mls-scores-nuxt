@@ -6,6 +6,9 @@ export default defineEventHandler(async () => {
     return data
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
-    throw createError({ statusCode: 502, message: `ESPN API error: ${message}` })
+    throw createError({
+      statusCode: 502,
+      message: `ESPN API error: ${message}`,
+    })
   }
 })
