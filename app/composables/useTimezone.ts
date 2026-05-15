@@ -45,11 +45,28 @@ function detectTzCode(): TzCode {
   }
 }
 
-// Singleton state — shared across all component instances
-const selectedTz = ref<TzCode>(detectTzCode())
+// Singleton state — shared across all component instances.
+// Default to ET on the server; client will correct to the browser's timezone
+// in onMounted (via useTimezone()) to avoid SSR/hydration mismatch.
+const selectedTz = ref<TzCode>('ET')
+let _tzDetected = false
 
 export function useTimezone() {
+  // On the client, detect the real browser timezone once after mount.
+  if (import.meta.client) {
+    onMounted(() => {
+      // Only auto-detect if the user hasn't manually changed the timezone
+      // (i.e. selectedTz is still the SSR default 'ET' and we haven't run yet).
+      // We use a module-level flag so this only fires once across all instances.
+      if (!_tzDetected) {
+        _tzDetected = true
+        selectedTz.value = detectTzCode()
+      }
+    })
+  }
+
   function setTz(code: TzCode) {
+    _tzDetected = true // treat manual selection as "detected"
     selectedTz.value = code
   }
 
