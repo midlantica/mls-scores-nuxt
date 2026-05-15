@@ -66,7 +66,7 @@ defineProps<{ conference: ConferenceStandings }>()
 
 .conf-title {
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -91,7 +91,7 @@ defineProps<{ conference: ConferenceStandings }>()
 }
 
 .standings-table thead tr {
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  border-bottom: 1px solid oklab(100% 0 0 / 0.08);
 }
 
 .standings-table th {
@@ -99,7 +99,7 @@ defineProps<{ conference: ConferenceStandings }>()
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgb(75 85 99);
+  color: oklab(38.5% -0.005 -0.020);
   padding: 0.2rem 0;
   text-align: right;
 }
@@ -110,11 +110,11 @@ defineProps<{ conference: ConferenceStandings }>()
 }
 
 .entry-row {
-  border-bottom: 1px solid rgb(255 255 255 / 0.04);
+  border-bottom: 1px solid oklab(100% 0 0 / 0.04);
   transition: background 0.1s;
 }
 .entry-row:hover {
-  background: rgb(255 255 255 / 0.04);
+  background: oklab(100% 0 0 / 0.04);
 }
 .entry-row:last-child {
   border-bottom: none;
@@ -122,13 +122,13 @@ defineProps<{ conference: ConferenceStandings }>()
 
 .standings-table td {
   padding: 0.2rem 0;
-  color: rgb(209 213 219);
+  color: oklab(85.5% -0.003 -0.012);
   text-align: right;
 }
 
 .col-rank {
   text-align: left !important;
-  color: rgb(75 85 99) !important;
+  color: oklab(38.5% -0.005 -0.020) !important;
   font-size: 0.6875rem;
   white-space: nowrap;
 }
@@ -143,12 +143,12 @@ defineProps<{ conference: ConferenceStandings }>()
   margin-left: 0.125rem;
   vertical-align: middle;
 }
-.rank-up   { color: rgb(74 222 128); }
-.rank-down { color: rgb(248 113 113); }
+.rank-up   { color: oklab(82.5% -0.130 0.052); }
+.rank-down { color: oklab(68.5% 0.130 0.048); }
 
 .col-team {
   text-align: left !important;
-  color: rgb(243 244 246) !important;
+  color: oklab(96.4% -0.002 -0.006) !important;
   font-weight: 500;
   min-width: 10rem;
 }
@@ -166,9 +166,9 @@ defineProps<{ conference: ConferenceStandings }>()
 }
 
 .overall-rec {
-  font-size: 0.6875rem;
+  font-size: 0.85rem;
   font-weight: 300;
-  color: rgb(107 114 128);
+  color: oklab(58.3% -0.004 -0.019);
   margin-left: 0.375rem;
 }
 
@@ -178,18 +178,18 @@ defineProps<{ conference: ConferenceStandings }>()
 
 .col-pts {
   font-weight: 700;
-  color: rgb(243 244 246) !important;
+  color: oklab(96.4% -0.002 -0.006) !important;
 }
 
 .col-ppg {
-  color: rgb(156 163 175) !important;
+  color: oklab(67.8% -0.004 -0.016) !important;
   font-size: 0.75rem;
 }
 
 .gd-pos {
-  color: rgb(74 222 128) !important;
+  color: oklab(82.5% -0.130 0.052) !important;
 }
 .gd-neg {
-  color: rgb(248 113 113) !important;
+  color: oklab(68.5% 0.130 0.048) !important;
 }
 </style>

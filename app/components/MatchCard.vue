@@ -115,15 +115,15 @@ const dayDateLabel = computed(() => {
 .match-card {
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   border-radius: 0.5rem;
-  border: 1px solid rgb(255 255 255 / 0.07);
+  border: 1px solid oklab(100% 0 0 / 0.07);
   padding: 0.5rem 0.75rem;
-  background: rgb(255 255 255 / 0.03);
+  background: oklab(100% 0 0 / 0.03);
   transition: border-color 0.15s, background 0.15s;
   position: relative;
 }
 .match-card:hover {
-  border-color: rgb(255 255 255 / 0.14);
-  background: rgb(255 255 255 / 0.05);
+  border-color: oklab(100% 0 0 / 0.14);
+  background: oklab(100% 0 0 / 0.05);
 }
 
 /* Day + date header row */
@@ -202,7 +202,7 @@ const dayDateLabel = computed(() => {
     font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
     font-size: 0.9375rem;
     font-weight: 600;
-    color: rgb(243 244 246);
+    color: oklab(96.4% -0.002 -0.006);
     line-height: 1;
   }
 
@@ -251,13 +251,13 @@ const dayDateLabel = computed(() => {
   font-size: 1rem;
   font-weight: 300;
   letter-spacing: 0.04em;
-  color: rgb(243 244 246);
+  color: oklab(96.4% -0.002 -0.006);
 }
 .team-rec {
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 300;
-  color: rgb(163 171 188);
+  color: oklab(71.2% -0.004 -0.018);
   white-space: nowrap;
 }
 
@@ -270,7 +270,7 @@ const dayDateLabel = computed(() => {
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: rgb(243 244 246);
+  color: oklab(96.4% -0.002 -0.006);
 }
 
 /* ── Status badge ── */
@@ -285,7 +285,7 @@ const dayDateLabel = computed(() => {
   font-size: 0.875rem;
   font-weight: 300;
   letter-spacing: 0.08em;
-  color: rgb(255 255 255);
+  color: oklab(100% 0 0);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -304,18 +304,18 @@ const dayDateLabel = computed(() => {
   border-radius: 0.25rem;
 }
 .badge-live {
-  background: rgb(20 83 45 / 0.6);
-  color: rgb(134 239 172);
-  border: 1px solid rgb(134 239 172 / 0.2);
+  background: oklab(34.8% -0.072 0.028 / 0.6);
+  color: oklab(88.5% -0.107 0.042);
+  border: 1px solid oklab(88.5% -0.107 0.042 / 0.2);
 }
 .badge-ht {
-  background: rgb(120 53 15 / 0.6);
-  color: rgb(253 186 116);
-  border: 1px solid rgb(253 186 116 / 0.2);
+  background: oklab(33.2% 0.028 0.062 / 0.6);
+  color: oklab(82.1% 0.022 0.082);
+  border: 1px solid oklab(82.1% 0.022 0.082 / 0.2);
 }
 .badge-ft {
-  background: rgb(255 255 255 / 0.06);
-  color: rgb(107 114 128);
+  background: oklab(100% 0 0 / 0.06);
+  color: oklab(50.2% -0.004 -0.018);
 }
 
 /* ── Fire badge ── */
