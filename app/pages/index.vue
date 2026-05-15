@@ -250,13 +250,8 @@ if (weeks.this.matches.length === 0) {
         </button>
       </div>
 
-      <!-- Error -->
-      <div v-if="weeks[activeTab].error" class="error-box">
-        {{ weeks[activeTab].error }}
-      </div>
-
       <!-- Loading skeleton -->
-      <div v-else-if="weeks[activeTab].loading && !allWeekMatches.length" class="skeleton-list">
+      <div v-if="weeks[activeTab].loading && !allWeekMatches.length" class="skeleton-list">
         <div v-for="i in 6" :key="i" class="skeleton-row" />
       </div>
 
@@ -655,7 +650,7 @@ if (weeks.this.matches.length === 0) {
 .match-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 .slot-section { display: flex; flex-direction: column; gap: 0.5rem; }
 .slot-heading {

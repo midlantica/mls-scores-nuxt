@@ -168,11 +168,9 @@ export function useScores() {
       // Always update timestamp so user knows we tried
       lastUpdated.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         + (data._stale ? ' ·' : '')
-    } catch (e: unknown) {
-      // Network-level failure (e.g. offline) — fail silently if we have data
-      if (!w.loaded) {
-        w.error = 'Unable to load scores. Please try again.'
-      }
+    } catch {
+      // Network-level failure — always fail silently, never show error screen
+      // If we have no data yet, matches stays empty (shows "No matches found")
     } finally {
       w.loading = false
     }
