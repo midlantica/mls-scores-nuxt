@@ -70,7 +70,7 @@ const dayTabs = computed<DayTab[]>(() => {
     }))
 })
 
-// Active day — auto-select today if present, else first day with games
+// Active day — auto-select today if present, else nearest day with games
 const activeDayKey = ref<string>('')
 
 // When week changes, reset day selection
@@ -79,7 +79,22 @@ watch(allWeekMatches, () => {
   const days = dayTabs.value
   if (days.length === 0) { activeDayKey.value = ''; return }
   const todayTab = days.find(d => d.key === todayKey)
-  activeDayKey.value = todayTab ? todayKey : days[0].key
+  if (todayTab) {
+    activeDayKey.value = todayKey
+  } else {
+    // Pick the nearest day to today (prefer future over past if equidistant)
+    const todayMs = new Date(todayKey).getTime()
+    const nearest = days.reduce((best: DayTab, d: DayTab) => {
+      const dMs = new Date(d.key).getTime()
+      const bestMs = new Date(best.key).getTime()
+      const dDiff = Math.abs(dMs - todayMs)
+      const bestDiff = Math.abs(bestMs - todayMs)
+      if (dDiff < bestDiff) return d
+      if (dDiff === bestDiff && dMs > bestMs) return d // prefer future
+      return best
+    })
+    activeDayKey.value = nearest.key
+  }
 }, { immediate: true })
 
 // Matches for the selected day
