@@ -179,14 +179,16 @@ if (weeks.this.matches.length === 0) {
     <header class="header">
       <div>
         <h1 class="site-title" role="button" @click="goHome">⚽ MLS Scores</h1>
-        <p class="site-date">{{ todayLabel() }}</p>
+        <ClientOnly><p class="site-date">{{ todayLabel() }}</p></ClientOnly>
       </div>
       <div class="header-right">
         <!-- Row 1: Updated … [↻ Refresh] -->
         <div class="header-row1">
-          <span class="update-label">
-            {{ weeks[activeTab].loading ? 'Loading…' : lastUpdated ? `Updated ${lastUpdated}` : '' }}
-          </span>
+          <ClientOnly>
+            <span class="update-label">
+              {{ weeks[activeTab].loading ? 'Loading…' : lastUpdated ? `Updated ${lastUpdated}` : '' }}
+            </span>
+          </ClientOnly>
           <button
             class="btn-refresh"
             :disabled="weeks[activeTab].loading || mainTab !== 'scores'"
