@@ -1,4 +1,5 @@
 import { $fetch } from 'ofetch'
+import { TEAM_LOGO } from './useMyTeam'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface MatchStatus {
@@ -13,10 +14,12 @@ export interface Match {
   homeRec: string
   homeScore: string | null
   homeColor: string // hex color for home team swatch
+  homeLogo: string | null // local SVG logo path
   away: string
   awayRec: string
   awayScore: string | null
   awayColor: string // hex color for away team swatch
+  awayLogo: string | null // local SVG logo path
   status: MatchStatus
   kickoffSlot: number // UTC epoch ms rounded to nearest 30min — for slot grouping
   qualityScore: number
@@ -132,6 +135,10 @@ export function transformMatches(data: Record<string, unknown>): Match[] {
           homeTeam?.color as string,
           homeTeam?.alternateColor as string
         ),
+        homeLogo:
+          TEAM_LOGO[
+            normalizeTeamName((homeTeam?.displayName as string) || '')
+          ] ?? null,
         away: normalizeTeamName((awayTeam?.displayName as string) || '?'),
         awayRec,
         awayScore: (away.score as string) ?? null,
@@ -139,6 +146,10 @@ export function transformMatches(data: Record<string, unknown>): Match[] {
           awayTeam?.color as string,
           awayTeam?.alternateColor as string
         ),
+        awayLogo:
+          TEAM_LOGO[
+            normalizeTeamName((awayTeam?.displayName as string) || '')
+          ] ?? null,
         status: parseStatus(evt),
         kickoffSlot: toKickoffSlot(evt.date as string),
         qualityScore: calcQuality(homeRec, awayRec),

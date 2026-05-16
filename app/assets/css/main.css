@@ -29,7 +29,7 @@ body {
     96.4% -0.002 -0.006
   ); /* near-white — team names, scores */
   --color-text-secondary: oklab(
-    45% 0 0
+    60% 0 0
   ); /* muted neutral grey — labels, table cells */
   --color-text-accent: var(
     --color-theme-400

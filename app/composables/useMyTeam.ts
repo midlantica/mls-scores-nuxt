@@ -55,6 +55,41 @@ export const TEAM_LIST = Object.keys(TEAM_LOGO)
   .filter((k) => k !== 'St. Louis CITY SC') // dedupe
   .sort()
 
+// ── Conference map ────────────────────────────────────────────────────────────
+export const TEAM_CONFERENCE: Record<string, string> = {
+  'Atlanta United FC': 'Eastern Conference',
+  'Austin FC': 'Western Conference',
+  'CF Montréal': 'Eastern Conference',
+  'Charlotte FC': 'Eastern Conference',
+  'Chicago Fire FC': 'Eastern Conference',
+  'Colorado Rapids': 'Western Conference',
+  'Columbus Crew': 'Eastern Conference',
+  'D.C. United': 'Eastern Conference',
+  'FC Cincinnati': 'Eastern Conference',
+  'FC Dallas': 'Western Conference',
+  'Houston Dynamo FC': 'Western Conference',
+  'Inter Miami CF': 'Eastern Conference',
+  'LA Galaxy': 'Western Conference',
+  LAFC: 'Western Conference',
+  'Minnesota United FC': 'Western Conference',
+  'Nashville SC': 'Eastern Conference',
+  'New England Revolution': 'Eastern Conference',
+  'New York City FC': 'Eastern Conference',
+  'Orlando City SC': 'Eastern Conference',
+  'Philadelphia Union': 'Eastern Conference',
+  'Portland Timbers': 'Western Conference',
+  'Real Salt Lake': 'Western Conference',
+  'Red Bull New York': 'Eastern Conference',
+  'San Diego FC': 'Western Conference',
+  'San Jose Earthquakes': 'Western Conference',
+  'Seattle Sounders FC': 'Western Conference',
+  'Sporting Kansas City': 'Western Conference',
+  'St. Louis City SC': 'Western Conference',
+  'St. Louis CITY SC': 'Western Conference',
+  'Toronto FC': 'Eastern Conference',
+  'Vancouver Whitecaps': 'Western Conference',
+}
+
 // ── Short display names for the button label (mobile-friendly) ────────────────
 export const TEAM_SHORT_NAME: Record<string, string> = {
   'Atlanta United FC': 'Atlanta United',
@@ -75,6 +110,41 @@ export const TEAM_SHORT_NAME: Record<string, string> = {
   'Vancouver Whitecaps': 'Van Whitecaps',
 }
 
+// ── Team primary colors ───────────────────────────────────────────────────────
+export const TEAM_COLORS: Record<string, string> = {
+  'Atlanta United FC': '#9d2235',
+  'Austin FC': '#00b140',
+  'CF Montréal': '#003da6',
+  'Charlotte FC': '#0085ca',
+  'Chicago Fire FC': '#ff0000',
+  'Colorado Rapids': '#8a2432',
+  'Columbus Crew': '#fedd00',
+  'D.C. United': '#d61018',
+  'FC Cincinnati': '#003087',
+  'FC Dallas': '#c6093b',
+  'Houston Dynamo FC': '#ff6b00',
+  'Inter Miami CF': '#f7b5cd',
+  'LA Galaxy': '#00235d',
+  LAFC: '#c7a36f',
+  'Minnesota United FC': '#9bcde4',
+  'Nashville SC': '#ece83a',
+  'New England Revolution': '#022166',
+  'New York City FC': '#9fd2ff',
+  'Orlando City SC': '#60269e',
+  'Philadelphia Union': '#051f31',
+  'Portland Timbers': '#2c5234',
+  'Real Salt Lake': '#a32035',
+  'Red Bull New York': '#ba0c2f',
+  'San Diego FC': '#697a7c',
+  'San Jose Earthquakes': '#003da6',
+  'Seattle Sounders FC': '#2dc84d',
+  'Sporting Kansas City': '#a7c6ed',
+  'St. Louis City SC': '#ec1458',
+  'St. Louis CITY SC': '#ec1458',
+  'Toronto FC': '#aa182c',
+  'Vancouver Whitecaps': '#12284c',
+}
+
 // ── Slate fallback palette (Tailwind slate in oklch) ─────────────────────────
 // These are the default values written into main.css @theme.
 const SLATE_PALETTE: Record<string, string> = {
@@ -92,7 +162,7 @@ const SLATE_PALETTE: Record<string, string> = {
 }
 
 // ── Derive a 10-stop oklch palette from a single hex color ───────────────────
-function buildPalette(hex: string): Record<string, string> {
+export function buildPalette(hex: string): Record<string, string> {
   const base = oklch(parse(hex))
   if (!base) return SLATE_PALETTE
 
@@ -184,7 +254,6 @@ export function useMyTeam() {
     const saved = localStorage.getItem(MY_TEAM_KEY)
     if (saved && TEAM_LOGO[saved]) {
       selectedTeam.value = saved
-      const { TEAM_COLORS } = useTeamColorsRaw()
       const hex = TEAM_COLORS[saved] ?? '#6b7280'
       applyTheme(buildPalette(hex), hex)
     }
@@ -194,7 +263,6 @@ export function useMyTeam() {
     selectedTeam.value = name
     if (name) {
       localStorage.setItem(MY_TEAM_KEY, name)
-      const { TEAM_COLORS } = useTeamColorsRaw()
       const hex = TEAM_COLORS[name] ?? '#6b7280'
       applyTheme(buildPalette(hex), hex)
     } else {
@@ -208,44 +276,4 @@ export function useMyTeam() {
   )
 
   return { selectedTeam, selectTeam, logoUrl, TEAM_LIST, TEAM_LOGO }
-}
-
-// ── Internal helper: import TEAM_COLORS without circular dep ─────────────────
-function useTeamColorsRaw() {
-  // Dynamic import avoided — just re-export the record inline here
-  // (same data as useTeamColors.ts, kept in sync)
-  const TEAM_COLORS: Record<string, string> = {
-    'Atlanta United FC': '#9d2235',
-    'Austin FC': '#00b140',
-    'CF Montréal': '#003da6',
-    'Charlotte FC': '#0085ca',
-    'Chicago Fire FC': '#ff0000',
-    'Colorado Rapids': '#8a2432',
-    'Columbus Crew': '#fedd00',
-    'D.C. United': '#d61018',
-    'FC Cincinnati': '#003087',
-    'FC Dallas': '#c6093b',
-    'Houston Dynamo FC': '#ff6b00',
-    'Inter Miami CF': '#f7b5cd',
-    'LA Galaxy': '#00235d',
-    LAFC: '#c7a36f',
-    'Minnesota United FC': '#9bcde4',
-    'Nashville SC': '#ece83a',
-    'New England Revolution': '#022166',
-    'New York City FC': '#9fd2ff',
-    'Orlando City SC': '#60269e',
-    'Philadelphia Union': '#051f31',
-    'Portland Timbers': '#2c5234',
-    'Real Salt Lake': '#a32035',
-    'Red Bull New York': '#ba0c2f',
-    'San Diego FC': '#697a7c',
-    'San Jose Earthquakes': '#003da6',
-    'Seattle Sounders FC': '#2dc84d',
-    'Sporting Kansas City': '#a7c6ed',
-    'St. Louis City SC': '#ec1458',
-    'St. Louis CITY SC': '#ec1458',
-    'Toronto FC': '#aa182c',
-    'Vancouver Whitecaps': '#12284c',
-  }
-  return { TEAM_COLORS }
 }

@@ -36,10 +36,49 @@
   // ── My Team ───────────────────────────────────────────────────────────────────
   const { selectedTeam, selectTeam, logoUrl } = useMyTeam()
   const teamPickerOpen = ref(false)
+  const teamModalOpen = ref(false)
+  const viewTeam = ref<string | null>(null)
   const teamPickerRef = ref<HTMLElement | null>(null)
 
   function toggleTeamPicker() {
     teamPickerOpen.value = !teamPickerOpen.value
+  }
+
+  function openTeamModal() {
+    if (selectedTeam.value) {
+      teamModalOpen.value = true
+    } else {
+      teamPickerOpen.value = !teamPickerOpen.value
+    }
+  }
+
+  function openTeamModalFor(teamName: string) {
+    viewTeam.value = teamName
+    teamModalOpen.value = true
+  }
+
+  function closeTeamModal() {
+    teamModalOpen.value = false
+    viewTeam.value = null
+  }
+
+  async function goToStandings(conferenceName: string) {
+    closeTeamModal()
+    await switchMainTab('standings')
+    // Scroll to the matching conference section after a tick
+    await nextTick()
+    const headings = document.querySelectorAll('.conf-title')
+    for (const el of headings) {
+      if (
+        el.textContent
+          ?.trim()
+          .toLowerCase()
+          .includes(conferenceName.toLowerCase().split(' ')[0] ?? '')
+      ) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        break
+      }
+    }
   }
 
   function chooseTeam(name: string | null) {
@@ -59,6 +98,34 @@
       }
     })
   })
+
+  // ── Auto-poll every 90 seconds when there are live/HT matches ────────────────
+  const hasLiveMatches = computed(() =>
+    weeks[activeTab.value].matches.some(
+      (m) => m.status.code === 'live' || m.status.code === 'ht'
+    )
+  )
+
+  let pollTimer: ReturnType<typeof setInterval> | null = null
+
+  function startPoll() {
+    if (pollTimer) return
+    pollTimer = setInterval(() => {
+      if (hasLiveMatches.value && mainTab.value === 'scores') {
+        fetchWeek(activeTab.value)
+      }
+    }, 90_000)
+  }
+
+  function stopPoll() {
+    if (pollTimer) {
+      clearInterval(pollTimer)
+      pollTimer = null
+    }
+  }
+
+  onMounted(startPoll)
+  onUnmounted(stopPoll)
 
   async function switchMainTab(tab: MainTab) {
     mainTab.value = tab
@@ -238,7 +305,7 @@
         >
       </div>
       <div class="header-right">
-        <!-- Row 1: Updated … [↻ Refresh] -->
+        <!-- Row 1: Updated timestamp -->
         <div class="header-row1">
           <ClientOnly>
             <span class="update-label">
@@ -251,13 +318,6 @@
               }}
             </span>
           </ClientOnly>
-          <button
-            class="btn-refresh"
-            :disabled="weeks[activeTab].loading || mainTab !== 'scores'"
-            @click="fetchWeek(activeTab)"
-          >
-            ↻ Refresh
-          </button>
         </div>
         <!-- Row 2: Time zone: [ ET | CT | MT | PT ] -->
         <div class="header-row2">
@@ -306,7 +366,7 @@
             :title="
               selectedTeam ? `My Team: ${selectedTeam}` : 'Choose your team'
             "
-            @click="toggleTeamPicker"
+            @click="openTeamModal"
           >
             <!-- Logo or placeholder box -->
             <span class="team-logo-slot">
@@ -325,6 +385,15 @@
                   : 'My Team'
               }}
             </span>
+          </button>
+          <!-- Separate caret button — always opens the dropdown -->
+          <button
+            class="my-team-caret-btn"
+            :class="{ 'has-team': !!selectedTeam }"
+            :title="'Change team'"
+            @click.stop="toggleTeamPicker"
+            aria-label="Choose team"
+          >
             <span class="my-team-caret">▾</span>
           </button>
 
@@ -443,12 +512,12 @@
               class="slot-section"
             >
               <h2 class="slot-heading" v-html="slot" />
-              <div class="cards">
-                <MatchCard
+              <div class="cards-grid">
+                <GameBlock
                   v-for="m in slotMatches"
                   :key="m.id"
                   :match="m"
-                  :hide-time="true"
+                  @select-team="openTeamModalFor"
                 />
               </div>
             </section>
@@ -457,12 +526,13 @@
           <!-- ── TODAY'S BEST / WEEK'S BEST view ───────────────────────── -->
           <div v-else class="match-list">
             <p v-if="!bestMatches.length" class="empty-msg">No games found.</p>
-            <div class="cards">
-              <MatchCard
+            <div class="cards-grid">
+              <GameBlock
                 v-for="m in bestMatches"
                 :key="m.id"
                 :match="m"
                 :show-date="viewMode === 'weekbest'"
+                @select-team="openTeamModalFor"
               />
             </div>
           </div>
@@ -491,9 +561,19 @@
             v-for="conf in conferences"
             :key="conf.name"
             :conference="conf"
+            @select-team="openTeamModalFor"
           />
         </div>
       </section>
+
+      <!-- ── My Team Modal ──────────────────────────────────────────────────── -->
+      <MyTeamModal
+        :open="teamModalOpen"
+        :view-team="viewTeam"
+        @close="closeTeamModal"
+        @select-team="openTeamModalFor"
+        @view-standings="goToStandings"
+      />
 
       <!-- ── Footer ─────────────────────────────────────────────────────────── -->
       <footer class="footer">
@@ -672,16 +752,17 @@
   .my-team-wrap {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    gap: 2px;
     margin-bottom: 4px;
   }
 
   .my-team-btn {
     display: flex;
     align-items: center;
-    gap: 0.2rem;
-    padding: 0.3rem 0.3rem 0.3rem 0.25rem;
-    border-radius: 0.375rem;
+    gap: 0.4rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.375rem 0 0 0.375rem;
     border: none;
     background: transparent;
     cursor: pointer;
@@ -729,11 +810,33 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .my-team-caret-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.375rem;
+    border-radius: 0 0.375rem 0.375rem 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .my-team-caret-btn:hover {
+    background: oklab(100% 0 0 / 0.08);
+  }
+  .my-team-caret-btn.has-team {
+    background: var(--color-theme-900);
+  }
+  .my-team-caret-btn.has-team:hover {
+    background: color-mix(in oklab, var(--color-theme-900) 80%, white);
+  }
+
   .my-team-caret {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: var(--color-theme-400);
     line-height: 1;
-    margin: -0.2rem 0 0;
+    margin: -0.15rem 0.1rem 0;
     padding: 0;
   }
 
@@ -1006,12 +1109,12 @@
   }
 
   .slot-heading {
-    font-size: 0.8125rem;
+    font-size: 0.9344rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-theme-500);
-    text-align: center;
+    color: var(--color-theme-300);
+    text-align: left;
   }
   .slot-heading :deep(.ampm) {
     font-size: 0.8em;
@@ -1020,6 +1123,23 @@
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
+  }
+
+  /* ── GameBlock multi-column grid ────────────────────────────────────────── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  @media (min-width: 560px) {
+    .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 820px) {
+    .cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   /* ── Standings ──────────────────────────────────────────────────────────── */

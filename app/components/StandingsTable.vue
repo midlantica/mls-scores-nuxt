@@ -1,8 +1,10 @@
 <script setup lang="ts">
   import type { ConferenceStandings } from '~/composables/useStandings'
   import { getTeamColor } from '~/composables/useTeamColors'
+  import { TEAM_LOGO } from '~/composables/useMyTeam'
 
   defineProps<{ conference: ConferenceStandings }>()
+  const emit = defineEmits<{ 'select-team': [team: string] }>()
 </script>
 
 <template>
@@ -43,12 +45,25 @@
               >
             </td>
             <td class="col-team">
-              <span
-                class="team-swatch"
-                :style="{ background: getTeamColor(entry.team) }"
-                aria-hidden="true"
-              />
-              {{ entry.team }}
+              <button
+                class="team-name-btn"
+                @click="emit('select-team', entry.team)"
+              >
+                <span class="team-logo-slot" aria-hidden="true">
+                  <img
+                    v-if="TEAM_LOGO[entry.team]"
+                    :src="TEAM_LOGO[entry.team]"
+                    :alt="entry.team"
+                    class="team-logo-img"
+                  />
+                  <span
+                    v-else
+                    class="team-swatch"
+                    :style="{ background: getTeamColor(entry.team) }"
+                  />
+                </span>
+                {{ entry.team }}
+              </button>
               <span v-if="entry.overall" class="overall-rec">{{
                 entry.overall
               }}</span>
@@ -95,7 +110,7 @@
     width: 100%;
     border-collapse: collapse;
     font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-    font-size: 0.8125rem;
+    font-size: calc(0.8125rem * 1.05);
     font-weight: 300;
     letter-spacing: 0.05em;
     white-space: nowrap;
@@ -168,16 +183,51 @@
     min-width: 10rem;
   }
 
-  .team-swatch {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    border-radius: 0.15em;
+  .team-name-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  .team-name-btn:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    color: var(--color-text-primary);
+  }
+
+  .team-logo-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(1.3em * 1.15);
+    height: calc(1.3em * 1.15);
     vertical-align: middle;
     margin-right: 0.375rem;
     flex-shrink: 0;
     position: relative;
     top: -0.05em;
+  }
+
+  .team-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .team-swatch {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border-radius: 0.15em;
+    flex-shrink: 0;
   }
 
   .overall-rec {

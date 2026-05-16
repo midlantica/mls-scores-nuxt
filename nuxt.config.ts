@@ -9,6 +9,9 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      include: ['culori'],
+    },
   },
 
   css: ['~/assets/css/main.css'],
