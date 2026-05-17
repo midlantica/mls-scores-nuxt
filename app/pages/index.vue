@@ -615,10 +615,10 @@
 
       <!-- ── Footer ─────────────────────────────────────────────────────────── -->
       <footer class="footer">
-        <span>Live data via ESPN API</span>
         <span v-if="mainTab === 'scores'"
           >🔥 both winning &amp; close · 🎲 derby or equal underdogs</span
         >
+        <span>Live data via ESPN API</span>
       </footer>
     </ClientOnly>
   </main>
@@ -628,12 +628,12 @@
   .page {
     max-width: 56rem;
     margin: 0 auto;
-    padding: 0.8rem 1rem 2rem;
+    padding: 0.5rem 1rem 2rem;
   }
 
   @media (max-width: 420px) {
     .page {
-      padding: 0.6rem 0.625rem 2rem;
+      padding: 0.3rem 0.625rem 2rem;
     }
   }
 
@@ -733,6 +733,7 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 0.5rem;
+    margin-top: 0.2rem;
   }
   .header-row1 {
     display: flex;
@@ -1303,8 +1304,9 @@
     font-size: 0.6875rem;
     color: var(--color-text-secondary);
     display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 0.25rem;
   }
 </style>
