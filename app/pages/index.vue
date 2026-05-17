@@ -207,12 +207,12 @@
   .page {
     max-width: 56rem;
     margin: 0 auto;
-    padding: 0.5rem 1rem 2rem;
+    padding: 0.5rem 1rem 0.5rem;
   }
 
   @media (max-width: 420px) {
     .page {
-      padding: 0.3rem 0.625rem 2rem;
+      padding: 0.3rem 0.625rem 0.5rem;
     }
   }
 
