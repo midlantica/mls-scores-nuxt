@@ -193,6 +193,22 @@
     min-width: 10rem;
   }
 
+  @media (max-width: 420px) {
+    .col-team {
+      min-width: 7rem;
+    }
+    .col-num {
+      width: 1.75rem;
+    }
+    .col-rec {
+      font-size: 0.7rem;
+      padding-right: 0.25rem;
+    }
+    .standings-table {
+      font-size: 0.75rem;
+    }
+  }
+
   .team-name-btn {
     background: none;
     border: none;

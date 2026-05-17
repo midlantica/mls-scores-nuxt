@@ -34,6 +34,10 @@
     fetchStandings,
   } = useStandings()
 
+  // ── Timezone picker ───────────────────────────────────────────────────────────
+  const tzPickerOpen = ref(false)
+  const tzPickerRef = ref<HTMLElement | null>(null)
+
   // ── My Team ───────────────────────────────────────────────────────────────────
   const { selectedTeam, selectTeam, logoUrl } = useMyTeam()
   const teamPickerOpen = ref(false)
@@ -82,12 +86,17 @@
     }
   }
 
+  function chooseTz(code: (typeof TZ_OPTIONS)[number]['code']) {
+    setTz(code)
+    tzPickerOpen.value = false
+  }
+
   function chooseTeam(name: string | null) {
     selectTeam(name)
     teamPickerOpen.value = false
   }
 
-  // Close picker on outside click
+  // Close pickers on outside click
   onMounted(() => {
     document.addEventListener('click', (e) => {
       if (
@@ -96,6 +105,13 @@
         !teamPickerRef.value.contains(e.target as Node)
       ) {
         teamPickerOpen.value = false
+      }
+      if (
+        tzPickerOpen.value &&
+        tzPickerRef.value &&
+        !tzPickerRef.value.contains(e.target as Node)
+      ) {
+        tzPickerOpen.value = false
       }
     })
   })
@@ -325,19 +341,35 @@
         </div>
       </div>
       <div class="header-right">
-        <!-- Row 2: Time zone: [ ET | CT | MT | PT ] -->
         <div class="header-row2">
-          <span class="tz-label">TZ</span>
-          <div class="tz-toggle">
+          <!-- Custom TZ picker: [ Time Zone · CT ] [ ▾ ] -->
+          <div ref="tzPickerRef" class="tz-picker-wrap">
             <button
-              v-for="tz in TZ_OPTIONS"
-              :key="tz.code"
-              class="tz-btn"
-              :class="{ active: selectedTz === tz.code }"
-              @click="setTz(tz.code)"
+              class="tz-picker-btn"
+              @click.stop="tzPickerOpen = !tzPickerOpen"
+              aria-label="Select time zone"
             >
-              {{ tz.code }}
+              <span class="tz-picker-label">Time Zone</span>
+              <span class="tz-picker-code">{{ selectedTz }}</span>
             </button>
+            <button
+              class="tz-picker-caret-btn"
+              @click.stop="tzPickerOpen = !tzPickerOpen"
+              aria-label="Change time zone"
+            >
+              <span class="tz-picker-caret">▾</span>
+            </button>
+            <div v-if="tzPickerOpen" class="tz-dropdown">
+              <button
+                v-for="tz in TZ_OPTIONS"
+                :key="tz.code"
+                class="tz-option"
+                :class="{ selected: selectedTz === tz.code }"
+                @click="chooseTz(tz.code)"
+              >
+                {{ tz.code }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -599,32 +631,35 @@
     padding: 0.8rem 1rem 2rem;
   }
 
+  @media (max-width: 420px) {
+    .page {
+      padding: 0.6rem 0.625rem 2rem;
+    }
+  }
+
   /* ── Header ─────────────────────────────────────────────────────────────── */
   .header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     margin-bottom: 0.5rem;
+    gap: 0.5rem;
   }
   .header-left {
     display: flex;
     align-items: center;
     gap: 0.625rem;
     user-select: none;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   .mls-logo {
     width: 2.6rem;
     height: 2.6rem;
     flex-shrink: 0;
-    /* Default: dim white */
-    color: oklab(100% 0 0 / 0.2);
-    transition: color 0.3s;
-  }
-
-  /* When a team is selected, use the theme accent color — same as the title */
-  .mls-logo--themed {
     color: var(--color-theme-300);
+    transition: color 0.3s;
   }
 
   .site-title {
@@ -645,6 +680,19 @@
     color: var(--color-text-secondary);
     margin-top: 0.125rem;
     opacity: 0.5;
+  }
+
+  @media (max-width: 420px) {
+    .mls-logo {
+      width: 2rem;
+      height: 2rem;
+    }
+    .site-title {
+      font-size: 1.25rem;
+    }
+    .site-date {
+      font-size: 0.625rem;
+    }
   }
   .update-label {
     font-size: 0.6875rem;
@@ -696,50 +744,113 @@
     align-items: center;
     gap: 0.375rem;
   }
-  .tz-label {
-    font-size: 0.647rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+  /* ── Custom TZ picker ───────────────────────────────────────────────────── */
+  .tz-picker-wrap {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 1px;
+    flex-shrink: 0;
+  }
+
+  .tz-picker-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.3rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem 0 0 0.3rem;
+    border: none;
+    background: var(--color-theme-900);
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    min-width: 5.2rem;
+  }
+  .tz-picker-btn:hover {
+    background: color-mix(in oklab, var(--color-theme-900) 80%, white);
+  }
+
+  .tz-picker-label {
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 100;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--color-text-secondary);
     white-space: nowrap;
   }
-  @media (max-width: 530px) {
-    .tz-label {
-      display: none;
-    }
+
+  .tz-picker-code {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-theme-300);
   }
 
-  /* ── Timezone toggle ────────────────────────────────────────────────────── */
-  .tz-toggle {
+  .tz-picker-caret-btn {
     display: flex;
-    border: 1px solid oklab(100% 0 0 / 0.08);
-    border-radius: 0.3rem;
-    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem 0.3rem;
+    border-radius: 0 0.3rem 0.3rem 0;
+    border: none;
+    background: var(--color-theme-900);
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
   }
-  .tz-btn {
-    font-size: 0.5625rem;
+  .tz-picker-caret-btn:hover {
+    background: color-mix(in oklab, var(--color-theme-900) 80%, white);
+  }
+
+  .tz-picker-caret {
+    font-size: 1.1rem;
+    color: var(--color-theme-400);
+    line-height: 1;
+    margin-top: -0.1rem;
+  }
+
+  .tz-dropdown {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    right: 0;
+    z-index: 200;
+    background: oklch(18% 0.025 260);
+    border: 1px solid var(--color-theme-800);
+    border-radius: 0.4rem;
+    box-shadow: 0 6px 18px oklab(0% 0 0 / 0.5);
+    overflow: hidden;
+    min-width: 4rem;
+  }
+
+  .tz-option {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.04em;
-    padding: 0.1875rem 0.375rem;
-    color: var(--color-text-secondary);
+    color: oklab(80% 0 0);
     background: transparent;
     border: none;
     cursor: pointer;
     transition:
-      background 0.15s,
-      color 0.15s;
+      background 0.1s,
+      color 0.1s;
+    white-space: nowrap;
   }
-  .tz-btn + .tz-btn {
-    border-left: 1px solid oklab(100% 0 0 / 0.06);
+  .tz-option + .tz-option {
+    border-top: 1px solid oklab(100% 0 0 / 0.06);
   }
-  .tz-btn:hover:not(.active) {
-    color: var(--color-text-secondary);
-    background: oklab(100% 0 0 / 0.04);
-  }
-  .tz-btn.active {
-    color: var(--color-theme-300);
+  .tz-option:hover {
     background: var(--color-theme-900);
+    color: var(--color-theme-300);
+  }
+  .tz-option.selected {
+    color: var(--color-theme-400);
+    background: var(--color-theme-950);
   }
 
   /* ── Main tabs ──────────────────────────────────────────────────────────── */
@@ -789,20 +900,17 @@
   .my-team-btn {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.5rem;
-    border-radius: 0.375rem 0 0 0.375rem;
+    gap: 0.3rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem 0 0 0.3rem;
     border: none;
-    background: transparent;
+    background: var(--color-theme-900);
     cursor: pointer;
     transition: background 0.15s;
     white-space: nowrap;
   }
   .my-team-btn:hover {
-    background: oklab(100% 0 0 / 0.06);
-  }
-  .my-team-btn.has-team {
-    background: var(--color-theme-900);
+    background: color-mix(in oklab, var(--color-theme-900) 80%, white);
   }
 
   /* Logo slot: fixed-size box, slate bg until a logo fills it */
@@ -839,34 +947,33 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  @media (max-width: 420px) {
+    .my-team-label {
+      max-width: 5rem;
+    }
+  }
   .my-team-caret-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.3rem 0.375rem;
-    border-radius: 0 0.375rem 0.375rem 0;
+    padding: 0.2rem 0.3rem;
+    border-radius: 0 0.3rem 0.3rem 0;
     border: none;
-    background: transparent;
+    background: var(--color-theme-900);
     cursor: pointer;
     transition: background 0.15s;
     flex-shrink: 0;
   }
   .my-team-caret-btn:hover {
-    background: oklab(100% 0 0 / 0.08);
-  }
-  .my-team-caret-btn.has-team {
-    background: var(--color-theme-900);
-  }
-  .my-team-caret-btn.has-team:hover {
     background: color-mix(in oklab, var(--color-theme-900) 80%, white);
   }
 
   .my-team-caret {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     color: var(--color-theme-400);
     line-height: 1;
-    margin: -0.15rem 0.1rem 0;
-    padding: 0;
+    margin-top: -0.1rem;
   }
 
   /* Dropdown */
