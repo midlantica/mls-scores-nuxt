@@ -31,7 +31,37 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {
           name: 'description',
-          content: 'Live MLS match scores and schedule for today',
+          content:
+            'Live MLS scores, schedule, and standings — updated in real time.',
+        },
+        // Open Graph
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: 'https://mlsscores.netlify.app/' },
+        { property: 'og:title', content: 'MLS Live Scores' },
+        {
+          property: 'og:description',
+          content:
+            'Live MLS scores, schedule, and standings — updated in real time.',
+        },
+        {
+          property: 'og:image',
+          content: 'https://mlsscores.netlify.app/og-image.png',
+        },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:site_name', content: 'MLS Scores' },
+        // Twitter / X Card
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'MLS Live Scores' },
+        {
+          name: 'twitter:description',
+          content:
+            'Live MLS scores, schedule, and standings — updated in real time.',
+        },
+        {
+          name: 'twitter:image',
+          content: 'https://mlsscores.netlify.app/og-image.png',
         },
       ],
       link: [
