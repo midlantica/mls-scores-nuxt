@@ -190,8 +190,42 @@ export function transformMatches(data: Record<string, unknown>): Match[] {
         (evt.competitions as Array<Record<string, unknown>>)?.[0] || {}
       const competitors =
         (comp.competitors as Array<Record<string, unknown>>) || []
-      const home = competitors.find((c) => c.homeAway === 'home') || {}
-      const away = competitors.find((c) => c.homeAway === 'away') || {}
+
+      // ESPN's event name is always "Away at Home" — use it as a tiebreaker
+      // when homeAway fields are missing or ambiguous.
+      const evtName = (evt.name as string) || ''
+      const nameAwayFirst = evtName.includes(' at ')
+        ? evtName.split(' at ')[0]?.trim()
+        : null
+
+      let home =
+        competitors.find((c) => c.homeAway === 'home') ||
+        (nameAwayFirst
+          ? competitors.find(
+              (c) =>
+                (c.team as Record<string, unknown>)?.displayName !==
+                nameAwayFirst
+            )
+          : null) ||
+        competitors[0] ||
+        {}
+      let away =
+        competitors.find((c) => c.homeAway === 'away') ||
+        (nameAwayFirst
+          ? competitors.find(
+              (c) =>
+                (c.team as Record<string, unknown>)?.displayName ===
+                nameAwayFirst
+            )
+          : null) ||
+        competitors[1] ||
+        {}
+
+      // Final sanity check: if both resolved to the same competitor, fall back
+      if (home === away) {
+        home = competitors[0] || {}
+        away = competitors[1] || {}
+      }
       const homeTeam = home.team as Record<string, unknown> | undefined
       const awayTeam = away.team as Record<string, unknown> | undefined
       const homeRec = parseRecord(home)

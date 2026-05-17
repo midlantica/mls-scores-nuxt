@@ -152,7 +152,7 @@
     <span v-else-if="isWild" class="fire-badge" aria-label="Wild card">🎲</span>
 
     <!-- Home team row -->
-    <div class="team-row">
+    <div class="team-row team-row-home">
       <div class="team-left">
         <span class="logo-slot" aria-hidden="true">
           <img
@@ -176,7 +176,7 @@
     </div>
 
     <!-- Away team row -->
-    <div class="team-row">
+    <div class="team-row team-row-away">
       <div class="team-left">
         <span class="logo-slot" aria-hidden="true">
           <img
@@ -311,10 +311,10 @@
     padding: 0.125rem 0;
   }
 
-  .team-row:first-child {
+  .team-row-home {
     grid-area: home;
   }
-  .team-row:nth-child(2) {
+  .team-row-away {
     grid-area: away;
   }
 
