@@ -40,7 +40,7 @@
   // ── Local clock ticker ────────────────────────────────────────────────────
   // Parse "MM:SS" → total seconds, tick every second, display as "MM:SS"
   // Resets whenever the prop clock changes (i.e. after each API refresh).
-  // Caps at 90:00 for regulation and won't tick during HT.
+  // Runs freely past 90:00 into stoppage/extra time. Won't tick during HT.
   const localClock = ref<string | null>(null)
   let clockBase = 0 // total seconds at last prop update
   let clockTickedAt = 0 // Date.now() when we last synced from the prop
@@ -70,8 +70,7 @@
         return
       }
       const elapsed = Math.floor((Date.now() - clockTickedAt) / 1000)
-      const total = Math.min(clockBase + elapsed, 90 * 60)
-      localClock.value = formatClock(total)
+      localClock.value = formatClock(clockBase + elapsed)
     }, 1000)
   }
 

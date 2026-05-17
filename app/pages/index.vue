@@ -236,7 +236,10 @@
     },
   })
 
-  watch(allWeekMatches, () => {
+  // Reset the manual day selection only when the user switches week tabs,
+  // NOT on every poll refresh — otherwise the auto-poll snaps the user back
+  // to today every 30 seconds when they've navigated to a different day.
+  watch(activeTab, () => {
     _manualDayKey.value = null
   })
 
