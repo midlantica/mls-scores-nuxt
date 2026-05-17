@@ -3,7 +3,7 @@
 // or ?date=YYYYMMDD for a single day
 // or ?from=YYYYMMDD&to=YYYYMMDD for a range
 //
-// In-memory cache: ESPN is called at most once per 90 seconds per cache key.
+// In-memory cache: 30 s TTL when matches are live/HT, 90 s otherwise.
 // On ESPN failure, stale cached data is returned silently (no error screen).
 
 function toDateStr(d: Date): string {
@@ -33,7 +33,21 @@ function weekRange(offset: number): {
 }
 
 // ── In-memory cache ───────────────────────────────────────────────────────────
-const CACHE_TTL_MS = 90_000 // 90 seconds
+// Use a short TTL when there are live events, longer when nothing is in-play.
+// This keeps the clock tight during matches without hammering ESPN at off-hours.
+const CACHE_TTL_LIVE_MS = 30_000 // 30 s — during live/HT matches
+const CACHE_TTL_IDLE_MS = 90_000 // 90 s — pre/post match (original rate)
+
+function hasLiveEvents(data: Record<string, unknown>): boolean {
+  const events = (data.events as Array<Record<string, unknown>>) ?? []
+  return events.some((evt) => {
+    const status = evt.status as Record<string, unknown> | undefined
+    const type = status?.type as Record<string, unknown> | undefined
+    const state = type?.state as string | undefined
+    const name = type?.name as string | undefined
+    return state === 'in' || name === 'STATUS_HALFTIME'
+  })
+}
 
 interface CacheEntry {
   data: Record<string, unknown>
@@ -69,9 +83,14 @@ export default defineEventHandler(async (event) => {
   const now = Date.now()
   const cached = cache.get(cacheKey)
 
-  // Return cached data if still fresh
-  if (cached && now - cached.fetchedAt < CACHE_TTL_MS) {
-    return cached.data
+  // Return cached data if still fresh.
+  // Use the short TTL only when the cached data contains live/HT events so we
+  // don't hammer ESPN during off-hours or between match days.
+  if (cached) {
+    const ttl = hasLiveEvents(cached.data)
+      ? CACHE_TTL_LIVE_MS
+      : CACHE_TTL_IDLE_MS
+    if (now - cached.fetchedAt < ttl) return cached.data
   }
 
   const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=${from}-${to}`

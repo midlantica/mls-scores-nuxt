@@ -36,20 +36,121 @@
 
   const isFire = computed(() => props.match.badge === 'fire')
   const isWild = computed(() => props.match.badge === 'wild')
+
+  // ── Local clock ticker ────────────────────────────────────────────────────
+  // Parse "MM:SS" → total seconds, tick every second, display as "MM:SS"
+  // Resets whenever the prop clock changes (i.e. after each API refresh).
+  // Caps at 90:00 for regulation and won't tick during HT.
+  const localClock = ref<string | null>(null)
+  let clockBase = 0 // total seconds at last prop update
+  let clockTickedAt = 0 // Date.now() when we last synced from the prop
+  let clockTimer: ReturnType<typeof setInterval> | null = null
+
+  function parseClock(clock: string): number {
+    const [m = '0', s = '0'] = clock.split(':')
+    return parseInt(m, 10) * 60 + parseInt(s, 10)
+  }
+
+  function formatClock(totalSeconds: number): string {
+    const m = Math.floor(totalSeconds / 60)
+    const s = totalSeconds % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  function startClockTicker() {
+    stopClockTicker()
+    if (!isLive.value || !props.match.status.clock) return
+    clockBase = parseClock(props.match.status.clock)
+    clockTickedAt = Date.now()
+    localClock.value = props.match.status.clock
+
+    clockTimer = setInterval(() => {
+      if (!isLive.value) {
+        stopClockTicker()
+        return
+      }
+      const elapsed = Math.floor((Date.now() - clockTickedAt) / 1000)
+      const total = Math.min(clockBase + elapsed, 90 * 60)
+      localClock.value = formatClock(total)
+    }, 1000)
+  }
+
+  function stopClockTicker() {
+    if (clockTimer) {
+      clearInterval(clockTimer)
+      clockTimer = null
+    }
+  }
+
+  // Re-sync whenever the API clock prop changes
+  watch(
+    () => props.match.status.clock,
+    (newClock) => {
+      if (isLive.value && newClock) {
+        startClockTicker()
+      } else {
+        stopClockTicker()
+        localClock.value = null
+      }
+    }
+  )
+
+  // Also react to status code changes (e.g. going live or ending)
+  watch(isLive, (live) => {
+    if (live && props.match.status.clock) {
+      startClockTicker()
+    } else {
+      stopClockTicker()
+      localClock.value = null
+    }
+  })
+
+  onMounted(() => {
+    if (isLive.value && props.match.status.clock) startClockTicker()
+  })
+
+  onUnmounted(stopClockTicker)
+
+  // The clock label shown in the badge: prefer local ticker, fall back to prop
+  const displayClock = computed(
+    () => localClock.value ?? props.match.status.clock ?? 'LIVE'
+  )
+
+  // ── Goal flash animation ──────────────────────────────────────────────────
+  const justScored = ref(false)
+  let flashTimer: ReturnType<typeof setTimeout> | null = null
+
+  watch(
+    () => `${props.match.homeScore}-${props.match.awayScore}`,
+    (newVal, oldVal) => {
+      // Only trigger during live/HT matches, and skip the initial render
+      if (!oldVal || !isLive.value) return
+      justScored.value = true
+      if (flashTimer) clearTimeout(flashTimer)
+      flashTimer = setTimeout(() => {
+        justScored.value = false
+      }, 425) // animation duration
+    }
+  )
+
+  onUnmounted(() => {
+    if (flashTimer) clearTimeout(flashTimer)
+  })
 </script>
 
 <template>
   <div
     class="game-block"
     :class="{
-      'game-block-live': isLive,
+      'game-block-live': isLive || isHT,
       'game-block-fire': isFire,
       'game-block-wild': isWild,
+      'game-block-goal': justScored,
     }"
   >
     <!-- Badge indicator -->
     <span v-if="isFire" class="fire-badge" aria-label="Top match">🔥</span>
-    <span v-else-if="isWild" class="fire-badge" aria-label="Wild card">🤞</span>
+    <span v-else-if="isWild" class="fire-badge" aria-label="Wild card">🎲</span>
 
     <!-- Home team row -->
     <div class="team-row">
@@ -102,7 +203,7 @@
     <!-- Right column: status / time -->
     <div class="status-col">
       <template v-if="isLive">
-        <span class="badge badge-live">{{ match.status.clock || 'LIVE' }}</span>
+        <span class="badge badge-live">{{ displayClock }}</span>
         <span class="status-date">{{ dateTimeLabel.day }}</span>
       </template>
       <template v-else-if="isHT">
@@ -155,20 +256,51 @@
     padding: 0.625rem 0.75rem;
     border-radius: 0.375rem;
     background: oklab(100% 0 0 / 0.06);
-    transition:
-      border-color 0.15s,
-      background 0.15s;
+    transition: border-color 0.15s;
     min-width: 0;
   }
 
   .game-block:hover {
     border-color: oklab(100% 0 0 / 0.2);
-    background: oklab(100% 0 0 / 0.13);
   }
 
   .game-block-live {
     outline: 1px solid oklab(100% 0 0 / 0.25);
     outline-offset: -1px;
+  }
+
+  /* ── Goal scored: shimmy-shake — rotation + expand only, no color change ── */
+  @keyframes goal-flash {
+    0% {
+      transform: rotate(0deg) scale(1);
+    }
+    10% {
+      transform: rotate(-4deg) scale(1.04);
+    }
+    25% {
+      transform: rotate(3.5deg) scale(1.05);
+    }
+    40% {
+      transform: rotate(-2.5deg) scale(1.03);
+    }
+    55% {
+      transform: rotate(2deg) scale(1.02);
+    }
+    70% {
+      transform: rotate(-1deg) scale(1.01);
+    }
+    85% {
+      transform: rotate(0.5deg) scale(1);
+    }
+    100% {
+      transform: rotate(0deg) scale(1);
+    }
+  }
+
+  .game-block-goal {
+    animation: goal-flash 0.425s ease-out forwards;
+    /* Override the global transition so the flash keyframes aren't smoothed */
+    transition: none !important;
   }
 
   /* Team rows */
@@ -237,7 +369,8 @@
     cursor: pointer;
     text-align: left;
   }
-  .team-name-btn:hover {
+  .team-name-btn:hover,
+  .team-row:hover .team-name-btn {
     text-decoration: underline;
     text-underline-offset: 0.2em;
   }
@@ -259,7 +392,7 @@
     text-align: right;
   }
 
-  /* Status column */
+  /* Status column — fixed width so cards always line up down the page */
   .status-col {
     grid-area: status;
     display: flex;
@@ -269,7 +402,8 @@
     gap: 0.375rem;
     padding-left: 0.5rem;
     border-left: 1px solid oklab(100% 0 0 / 0.07);
-    min-width: 3.5rem;
+    width: 3.5rem;
+    flex-shrink: 0;
     text-align: center;
   }
 
@@ -293,30 +427,31 @@
     white-space: nowrap;
   }
 
+  /* Shared badge base */
   .badge {
-    font-size: calc(0.75rem * 1.15);
+    font-size: 0.75rem;
     font-weight: 200;
     letter-spacing: 0.12em;
     color: white;
-    padding: 0.15rem 0.45rem 0.15rem 0.6rem;
+    padding: 0.15rem 0.35rem;
     border-radius: 0.2rem;
     white-space: nowrap;
-    min-width: 3ch;
     text-align: center;
+    background: oklab(28% -0.01 -0.02 / 0.85);
   }
 
+  /* Live clock: fill the full column width so the clock never shifts the layout.
+     Tabular nums keep each digit the same width as it ticks. */
   .badge-live {
-    background: oklab(28% -0.01 -0.02 / 0.85);
-    color: white;
+    width: 100%;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    box-sizing: border-box;
   }
 
-  .badge-ht {
-    background: oklab(28% -0.01 -0.02 / 0.85);
-    color: white;
-  }
-
+  /* HT / FT: stay compact (roughly square), centered in the column */
+  .badge-ht,
   .badge-ft {
-    background: oklab(28% -0.01 -0.02 / 0.85);
-    color: white;
+    width: auto;
   }
 </style>

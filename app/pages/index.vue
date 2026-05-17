@@ -105,7 +105,7 @@
     if (val) console.log(`[MLS Scores] Updated ${val}`)
   })
 
-  // ── Auto-poll every 90 seconds when there are live/HT matches ────────────────
+  // ── Auto-poll every 30 seconds when there are live/HT matches ────────────────
   const hasLiveMatches = computed(() =>
     weeks[activeTab.value].matches.some(
       (m) => m.status.code === 'live' || m.status.code === 'ht'
@@ -120,7 +120,7 @@
       if (hasLiveMatches.value && mainTab.value === 'scores') {
         fetchWeek(activeTab.value)
       }
-    }, 90_000)
+    }, 30_000)
   }
 
   function stopPoll() {
@@ -582,7 +582,7 @@
       <footer class="footer">
         <span>Live data via ESPN API</span>
         <span v-if="mainTab === 'scores'"
-          >🔥 both winning &amp; close · 🤞 derby or equal underdogs</span
+          >🔥 both winning &amp; close · 🎲 derby or equal underdogs</span
         >
       </footer>
     </ClientOnly>
@@ -593,7 +593,7 @@
   .page {
     max-width: 56rem;
     margin: 0 auto;
-    padding: 1.25rem 1rem 2rem;
+    padding: 0.8rem 1rem 2rem;
   }
 
   /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -1155,7 +1155,7 @@
   .cards-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
   @media (min-width: 560px) {
     .cards-grid {
