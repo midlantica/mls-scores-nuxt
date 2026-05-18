@@ -13,18 +13,14 @@
   const hiatusMsg = computed(() => weeks[activeTab.value].hiatus ?? null)
 
   // Banner: shown on "next" tab when today is inside a hiatus window.
-  // Check directly: if "this week" has a hiatus message OR if "next" week's
-  // label is in the future relative to today (meaning we jumped over a gap).
-  // We use weeks.this.hiatus if loaded, otherwise fall back to checking
-  // whether the next week label is significantly ahead of this week label.
+  // Uses the "this week" hiatus flag OR a direct date-range check as fallback
+  // (in case "this week" data hasn't loaded yet when the user lands on Next).
   const HIATUS_MSG =
     "The MLS season is on hiatus for the 2026 FIFA World Cup — but we'll be back soon! MLS play resumes July 22, 2026."
 
   const hiatusBannerMsg = computed((): string | null => {
     if (activeTab.value !== 'next') return null
-    // If "this week" hiatus is already loaded, use it
     if (weeks.this.hiatus) return HIATUS_MSG
-    // Fallback: check if today's date is inside the known WC hiatus window
     const today = new Date()
     const wcStart = new Date('2026-05-25')
     const wcEnd = new Date('2026-07-21')
@@ -137,6 +133,23 @@
     </button>
   </div>
 
+  <!-- Hiatus banner: always shown at top of content when on Next tab during WC break -->
+  <div
+    v-if="hiatusBannerMsg && !bannerDismissed"
+    class="hiatus-banner"
+    role="status"
+  >
+    <span class="hiatus-banner-icon">⚽</span>
+    <span class="hiatus-banner-text">{{ hiatusBannerMsg }}</span>
+    <button
+      class="hiatus-banner-close"
+      aria-label="Dismiss"
+      @click="bannerDismissed = true"
+    >
+      ✕
+    </button>
+  </div>
+
   <!-- Hiatus message (only after load completes and no matches) -->
   <div
     v-if="hiatusMsg && !allWeekMatches.length && !weeks[activeTab].loading"
@@ -147,23 +160,6 @@
 
   <!-- All week's games: grouped by day → time slot, quality-sorted within each slot -->
   <div v-else-if="allWeekMatches.length" class="match-list">
-    <!-- Hiatus banner: shown on "Next" tab when today is inside a hiatus window -->
-    <div
-      v-if="hiatusBannerMsg && !bannerDismissed"
-      class="hiatus-banner"
-      role="status"
-    >
-      <span class="hiatus-banner-icon">⚽</span>
-      <span class="hiatus-banner-text">{{ hiatusBannerMsg }}</span>
-      <button
-        class="hiatus-banner-close"
-        aria-label="Dismiss"
-        @click="bannerDismissed = true"
-      >
-        ✕
-      </button>
-    </div>
-
     <section
       v-for="{ day, slots } in weekByDayGroups"
       :key="day.key"
