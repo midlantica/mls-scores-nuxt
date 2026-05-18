@@ -34,70 +34,35 @@ export default defineNuxtConfig({
           content:
             'Live MLS scores, schedule, and standings — updated in real time.',
         },
-        // Open Graph — tagPriority 'critical' forces these before inline styles/scripts
-        { property: 'og:type', content: 'website', tagPriority: 'critical' },
-        {
-          property: 'og:url',
-          content: 'https://mlsscores.netlify.app/',
-          tagPriority: 'critical',
-        },
-        {
-          property: 'og:title',
-          content: 'MLS Live Scores',
-          tagPriority: 'critical',
-        },
+        // Open Graph & Twitter — injected at top of <head> via server/plugins/og-head.ts
+        // (Nitro render hook ensures they appear before inline <style> blocks for scrapers)
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: 'https://mlsscores.netlify.app/' },
+        { property: 'og:title', content: 'MLS Live Scores' },
         {
           property: 'og:description',
           content:
             'Live MLS scores, schedule, and standings — updated in real time.',
-          tagPriority: 'critical',
         },
         {
           property: 'og:image',
           content: 'https://mlsscores.netlify.app/og-image.png?v=4',
-          tagPriority: 'critical',
         },
-        {
-          property: 'og:image:width',
-          content: '1200',
-          tagPriority: 'critical',
-        },
-        {
-          property: 'og:image:height',
-          content: '630',
-          tagPriority: 'critical',
-        },
-        {
-          property: 'og:image:type',
-          content: 'image/png',
-          tagPriority: 'critical',
-        },
-        {
-          property: 'og:site_name',
-          content: 'MLS Scores',
-          tagPriority: 'critical',
-        },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:site_name', content: 'MLS Scores' },
         // Twitter / X Card
-        {
-          name: 'twitter:card',
-          content: 'summary_large_image',
-          tagPriority: 'critical',
-        },
-        {
-          name: 'twitter:title',
-          content: 'MLS Live Scores',
-          tagPriority: 'critical',
-        },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'MLS Live Scores' },
         {
           name: 'twitter:description',
           content:
             'Live MLS scores, schedule, and standings — updated in real time.',
-          tagPriority: 'critical',
         },
         {
           name: 'twitter:image',
           content: 'https://mlsscores.netlify.app/og-image.png?v=4',
-          tagPriority: 'critical',
         },
       ],
       link: [
