@@ -21,7 +21,7 @@
 <style scoped>
   .footer {
     margin-top: 1.5rem;
-    padding-top: 1rem;
+    padding-top: 0.5rem;
     border-top: 1px solid var(--color-text-secondary);
     color: var(--color-text-secondary);
     display: flex;
