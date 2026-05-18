@@ -33,6 +33,7 @@
 
   .footer-info {
     font-size: 0.75rem;
+    color: var(--color-text-secondary);
   }
 
   .footer-disclaimer {
