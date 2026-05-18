@@ -292,6 +292,7 @@
     align-items: flex-start;
     gap: 0.625rem;
     padding: 0.75rem 1rem;
+    margin: 1.3rem 0;
     border-radius: 0.5rem;
     background: oklab(22% 0.01 -0.02);
     border: 1px solid oklab(100% 0 0 / 0.1);
