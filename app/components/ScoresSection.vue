@@ -21,10 +21,12 @@
   const hiatusBannerMsg = computed((): string | null => {
     if (activeTab.value !== 'next') return null
     if (weeks.this.hiatus) return HIATUS_MSG
+    // Show banner on Next tab any time before MLS resumes (Jul 22 2026),
+    // covering both the lead-up to the break and the break itself.
     const today = new Date()
-    const wcStart = new Date('2026-05-25')
-    const wcEnd = new Date('2026-07-21')
-    if (today >= wcStart && today <= wcEnd) return HIATUS_MSG
+    const wcResume = new Date('2026-07-22')
+    const wcAnnounced = new Date('2026-05-18') // start showing from today
+    if (today >= wcAnnounced && today < wcResume) return HIATUS_MSG
     return null
   })
   const bannerDismissed = ref(false)
