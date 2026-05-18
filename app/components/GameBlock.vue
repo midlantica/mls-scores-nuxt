@@ -475,17 +475,14 @@
   .game-block-away-wins .team-row-away::after {
     content: '';
     position: absolute;
-    /* The team-row is inside the grid's left column; the status col border
-       is at the right edge of that column. We use right: -0.5rem to sit
-       just before the gap, then nudge with the border-right size. */
-    right: calc(0.5rem - 6px); /* 0.5rem = column gap, 6px = triangle width */
-    top: 50%;
+    right: calc(-0.1rem - 6px);
+    top: 52%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
     border-top: 6px solid transparent;
     border-bottom: 6px solid transparent;
-    border-right: 6px solid #4ade80; /* green-400, pointing left */
+    border-right: 5px solid #4ade80; /* green-400, pointing left */
     pointer-events: none;
   }
 
