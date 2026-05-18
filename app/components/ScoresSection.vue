@@ -137,6 +137,23 @@
     </button>
   </div>
 
+  <!-- Hiatus banner: always shown at top of content when on Next tab during WC break -->
+  <div
+    v-if="hiatusBannerMsg && !bannerDismissed"
+    class="hiatus-banner"
+    role="status"
+  >
+    <span class="hiatus-banner-icon">⚽</span>
+    <span class="hiatus-banner-text">{{ hiatusBannerMsg }}</span>
+    <button
+      class="hiatus-banner-close"
+      aria-label="Dismiss"
+      @click="bannerDismissed = true"
+    >
+      ✕
+    </button>
+  </div>
+
   <!-- Hiatus message (only after load completes and no matches) -->
   <div
     v-if="hiatusMsg && !allWeekMatches.length && !weeks[activeTab].loading"
@@ -147,23 +164,6 @@
 
   <!-- All week's games: grouped by day → time slot, quality-sorted within each slot -->
   <div v-else-if="allWeekMatches.length" class="match-list">
-    <!-- Hiatus banner: shown on "Next" tab when today is inside a hiatus window -->
-    <div
-      v-if="hiatusBannerMsg && !bannerDismissed"
-      class="hiatus-banner"
-      role="status"
-    >
-      <span class="hiatus-banner-icon">⚽</span>
-      <span class="hiatus-banner-text">{{ hiatusBannerMsg }}</span>
-      <button
-        class="hiatus-banner-close"
-        aria-label="Dismiss"
-        @click="bannerDismissed = true"
-      >
-        ✕
-      </button>
-    </div>
-
     <section
       v-for="{ day, slots } in weekByDayGroups"
       :key="day.key"
