@@ -12,6 +12,13 @@
   // current week falls inside a known hiatus window (WC break, off-season).
   const hiatusMsg = computed(() => weeks[activeTab.value].hiatus ?? null)
 
+  // Banner: shown on "next" tab when today is inside a hiatus window.
+  // Uses the "this week" hiatus message since that's where the flag lives.
+  const hiatusBannerMsg = computed(() =>
+    activeTab.value === 'next' ? (weeks.this.hiatus ?? null) : null
+  )
+  const bannerDismissed = ref(false)
+
   const { weekByDayGroups } = useMatchView(allWeekMatches, activeTab)
 
   // ── Collapse state ────────────────────────────────────────────────────────
@@ -126,6 +133,23 @@
 
   <!-- All week's games: grouped by day → time slot, quality-sorted within each slot -->
   <div v-else-if="allWeekMatches.length" class="match-list">
+    <!-- Hiatus banner: shown on "Next" tab when today is inside a hiatus window -->
+    <div
+      v-if="hiatusBannerMsg && !bannerDismissed"
+      class="hiatus-banner"
+      role="status"
+    >
+      <span class="hiatus-banner-icon">⚽</span>
+      <span class="hiatus-banner-text">{{ hiatusBannerMsg }}</span>
+      <button
+        class="hiatus-banner-close"
+        aria-label="Dismiss"
+        @click="bannerDismissed = true"
+      >
+        ✕
+      </button>
+    </div>
+
     <section
       v-for="{ day, slots } in weekByDayGroups"
       :key="day.key"
@@ -248,6 +272,48 @@
     text-align: center;
     max-width: 36rem;
     line-height: 1.6;
+  }
+
+  /* ── Hiatus banner ──────────────────────────────────────────────────────── */
+  .hiatus-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: oklab(22% 0.01 -0.02);
+    border: 1px solid oklab(100% 0 0 / 0.1);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+
+  .hiatus-banner-icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+    margin-top: 0.05em;
+  }
+
+  .hiatus-banner-text {
+    flex: 1;
+  }
+
+  .hiatus-banner-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+    margin-top: 0.1em;
+  }
+
+  .hiatus-banner-close:hover {
+    opacity: 1;
   }
 
   /* ── Match list ─────────────────────────────────────────────────────────── */
