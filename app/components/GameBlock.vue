@@ -484,7 +484,7 @@
     height: 0;
     border-top: 6px solid transparent;
     border-bottom: 6px solid transparent;
-    border-right: 5px solid white; /* pointing left */
+    border-right: 5px solid #aaaaaa; /* pointing left */
     pointer-events: none;
   }
 
