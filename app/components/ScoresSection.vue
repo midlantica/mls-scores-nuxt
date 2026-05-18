@@ -13,10 +13,24 @@
   const hiatusMsg = computed(() => weeks[activeTab.value].hiatus ?? null)
 
   // Banner: shown on "next" tab when today is inside a hiatus window.
-  // Uses the "this week" hiatus message since that's where the flag lives.
-  const hiatusBannerMsg = computed(() =>
-    activeTab.value === 'next' ? (weeks.this.hiatus ?? null) : null
-  )
+  // Check directly: if "this week" has a hiatus message OR if "next" week's
+  // label is in the future relative to today (meaning we jumped over a gap).
+  // We use weeks.this.hiatus if loaded, otherwise fall back to checking
+  // whether the next week label is significantly ahead of this week label.
+  const HIATUS_MSG =
+    "The MLS season is on hiatus for the 2026 FIFA World Cup — but we'll be back soon! MLS play resumes July 22, 2026."
+
+  const hiatusBannerMsg = computed((): string | null => {
+    if (activeTab.value !== 'next') return null
+    // If "this week" hiatus is already loaded, use it
+    if (weeks.this.hiatus) return HIATUS_MSG
+    // Fallback: check if today's date is inside the known WC hiatus window
+    const today = new Date()
+    const wcStart = new Date('2026-05-25')
+    const wcEnd = new Date('2026-07-21')
+    if (today >= wcStart && today <= wcEnd) return HIATUS_MSG
+    return null
+  })
   const bannerDismissed = ref(false)
 
   const { weekByDayGroups } = useMatchView(allWeekMatches, activeTab)
