@@ -34,36 +34,9 @@ export default defineNuxtConfig({
           content:
             'Live MLS scores, schedule, and standings — updated in real time.',
         },
-        // Open Graph & Twitter — injected at top of <head> via server/plugins/og-head.ts
-        // (Nitro render hook ensures they appear before inline <style> blocks for scrapers)
-        { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: 'https://mlsscores.netlify.app/' },
-        { property: 'og:title', content: 'MLS Live Scores' },
-        {
-          property: 'og:description',
-          content:
-            'Live MLS scores, schedule, and standings — updated in real time.',
-        },
-        {
-          property: 'og:image',
-          content: 'https://mlsscores.netlify.app/og-image.png?v=4',
-        },
-        { property: 'og:image:width', content: '1200' },
-        { property: 'og:image:height', content: '630' },
-        { property: 'og:image:type', content: 'image/png' },
-        { property: 'og:site_name', content: 'MLS Scores' },
-        // Twitter / X Card
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'MLS Live Scores' },
-        {
-          name: 'twitter:description',
-          content:
-            'Live MLS scores, schedule, and standings — updated in real time.',
-        },
-        {
-          name: 'twitter:image',
-          content: 'https://mlsscores.netlify.app/og-image.png?v=4',
-        },
+        // OG & Twitter tags are injected at the very top of <head> by
+        // server/plugins/og-head.ts (Nitro render hook) so scrapers see them
+        // before any inline <style> blocks. Do NOT add them here too.
       ],
       link: [
         {
