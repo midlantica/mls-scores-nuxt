@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { useScores, transformMatches } from '~/composables/useScores'
-  import type { Match } from '~/composables/useScores'
   import { useStandings } from '~/composables/useStandings'
 
   // ── Main tab ──────────────────────────────────────────────────────────────────
@@ -43,20 +42,6 @@
   // ── Team modal state ──────────────────────────────────────────────────────────
   const teamModalOpen = ref(false)
   const viewTeam = ref<string | null>(null)
-
-  // ── Game detail modal state ───────────────────────────────────────────────────
-  const gameDetailOpen = ref(false)
-  const selectedMatch = ref<Match | null>(null)
-
-  function openGameDetail(match: Match) {
-    selectedMatch.value = match
-    gameDetailOpen.value = true
-  }
-
-  function closeGameDetail() {
-    gameDetailOpen.value = false
-    selectedMatch.value = null
-  }
 
   function openTeamModal() {
     teamModalOpen.value = true
@@ -203,10 +188,7 @@
     <div class="content-area">
       <!-- ── Scores tab ────────────────────────────────────────────────── -->
       <section v-if="mainTab === 'scores'" class="tab-section">
-        <ScoresSection
-          @select-team="openTeamModalFor"
-          @open-game-detail="openGameDetail"
-        />
+        <ScoresSection @select-team="openTeamModalFor" />
       </section>
 
       <!-- ── Standings tab ─────────────────────────────────────────────── -->
@@ -249,13 +231,6 @@
         @close="closeTeamModal"
         @select-team="openTeamModalFor"
         @view-standings="goToStandings"
-      />
-
-      <!-- ── Game Detail Modal ─────────────────────────────────────────────── -->
-      <GameDetailModal
-        :open="gameDetailOpen"
-        :match="selectedMatch"
-        @close="closeGameDetail"
       />
     </ClientOnly>
   </main>

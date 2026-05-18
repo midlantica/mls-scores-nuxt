@@ -2,11 +2,7 @@
   import { useScores } from '~/composables/useScores'
   import { useMatchView } from '~/composables/useMatchView'
 
-  import type { Match } from '~/composables/useScores'
-  const emit = defineEmits<{
-    'select-team': [team: string]
-    'open-game-detail': [match: Match]
-  }>()
+  const emit = defineEmits<{ 'select-team': [team: string] }>()
 
   const { weeks, activeTab, selectTab } = useScores()
 
@@ -213,7 +209,6 @@
               :key="m.id"
               :match="m"
               @select-team="emit('select-team', $event)"
-              @open-game-detail="emit('open-game-detail', $event)"
             />
           </div>
         </div>
