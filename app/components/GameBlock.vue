@@ -7,7 +7,10 @@
     showDate?: boolean // show full date instead of just time (Week's Best)
   }>()
 
-  const emit = defineEmits<{ 'select-team': [team: string] }>()
+  const emit = defineEmits<{
+    'select-team': [team: string]
+    'open-game-detail': [match: Match]
+  }>()
 
   const { formatTimeHtml, iana } = useTimezone()
 
@@ -252,6 +255,15 @@
         <span class="status-time" v-html="kickoffLabel" />
         <span class="status-date">{{ dateTimeLabel.day }}</span>
       </template>
+
+      <!-- Detail button -->
+      <button
+        class="detail-btn"
+        :aria-label="`Match details: ${match.home} vs ${match.away}`"
+        @click.stop="emit('open-game-detail', match)"
+      >
+        ℹ
+      </button>
     </div>
   </div>
 </template>
@@ -534,5 +546,39 @@
   .badge-ht,
   .badge-ft {
     width: auto;
+  }
+
+  /* Detail / info button */
+  .detail-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    border: 1px solid oklab(100% 0 0 / 0.18);
+    background: none;
+    color: oklab(75% 0 0);
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    transition:
+      background 0.15s,
+      color 0.15s,
+      border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .detail-btn:hover {
+    background: oklab(100% 0 0 / 0.1);
+    color: oklab(95% 0 0);
+    border-color: oklab(100% 0 0 / 0.35);
+  }
+
+  .detail-btn:focus-visible {
+    outline: 2px solid oklab(100% 0 0 / 0.5);
+    outline-offset: 2px;
   }
 </style>
