@@ -25,9 +25,15 @@ const OG_TAGS = `<meta property="og:type" content="website">
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('render:html', (html) => {
     // html.head is an array of strings that Nuxt joins into <head>
+    if (!Array.isArray(html.head)) return
+
+    // Remove any existing og:/twitter: meta tags from the array so we don't
+    // end up with duplicates (nuxt.config app.head also emits them)
+    html.head = html.head.filter(
+      (chunk) => !/property="og:|name="twitter:/.test(chunk)
+    )
+
     // Prepend our OG tags so they appear before inline <style> blocks
-    if (Array.isArray(html.head)) {
-      html.head.unshift(OG_TAGS)
-    }
+    html.head.unshift(OG_TAGS)
   })
 })
