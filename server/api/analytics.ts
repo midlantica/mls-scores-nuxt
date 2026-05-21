@@ -1,6 +1,5 @@
 // server/api/analytics.ts
 // Returns analytics data for the admin dashboard.
-// Protected by ADMIN_PASSWORD env var — pass ?password=xxx in the request.
 
 import { getStore } from '@netlify/blobs'
 
@@ -21,15 +20,7 @@ interface DaySummary {
   hourly: { hour: string; views: number }[]
 }
 
-export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-
-  // Password check
-  const adminPassword = process.env.ADMIN_PASSWORD
-  if (adminPassword && query.password !== adminPassword) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
-
+export default defineEventHandler(async (_event) => {
   // Only works on Netlify
   if (!process.env.NETLIFY && !process.env.NETLIFY_BLOBS_CONTEXT) {
     return { days: [], message: 'Analytics only available in production.' }

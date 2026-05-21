@@ -1,7 +1,5 @@
 <script setup lang="ts">
-  // Simple analytics admin dashboard
-  // Protected by a password stored in ADMIN_PASSWORD env var.
-  // Usage: /admin?password=yourpassword
+  // Simple analytics admin dashboard — /admin
 
   interface DaySummary {
     date: string
@@ -19,11 +17,8 @@
     message?: string
   }
 
-  const route = useRoute()
-  const password = computed(() => (route.query.password as string) ?? '')
-
   const { data, pending, error, refresh } = await useFetch<AnalyticsData>(
-    () => `/api/analytics?password=${password.value}`,
+    '/api/analytics',
     { lazy: true }
   )
 
@@ -74,12 +69,8 @@
       <button class="refresh-btn" @click="refresh()">↻ Refresh</button>
     </div>
 
-    <!-- Password gate -->
     <div v-if="error" class="admin-error">
-      <p v-if="(error as any)?.statusCode === 401">
-        🔒 Unauthorized. Add <code>?password=yourpassword</code> to the URL.
-      </p>
-      <p v-else>Error loading analytics: {{ error.message }}</p>
+      <p>Error loading analytics: {{ error.message }}</p>
     </div>
 
     <div v-else-if="pending" class="admin-loading">Loading…</div>
