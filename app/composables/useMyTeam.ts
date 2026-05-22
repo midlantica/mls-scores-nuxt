@@ -91,7 +91,42 @@ export const TEAM_CONFERENCE: Record<string, string> = {
   'Vancouver Whitecaps': 'Western Conference',
 }
 
-// ── Short display names for the button label (mobile-friendly) ────────────────
+// ── Ultra-short abbreviations for the "My Team" button label (≤6 chars) ──────
+export const TEAM_ABBREV: Record<string, string> = {
+  'Atlanta United FC': 'ATL',
+  'Austin FC': 'ATX',
+  'CF Montréal': 'MTL',
+  'Charlotte FC': 'CLT',
+  'Chicago Fire FC': 'CHI',
+  'Colorado Rapids': 'COL',
+  'Columbus Crew': 'CLB',
+  'D.C. United': 'DC',
+  'FC Cincinnati': 'CIN',
+  'FC Dallas': 'DAL',
+  'Houston Dynamo FC': 'HOU',
+  'Inter Miami CF': 'MIA',
+  'LA Galaxy': 'LAG',
+  LAFC: 'LAFC',
+  'Minnesota United FC': 'MIN',
+  'Nashville SC': 'NSH',
+  'New England Revolution': 'NE',
+  'New York City FC': 'NYC',
+  'Orlando City SC': 'ORL',
+  'Philadelphia Union': 'PHI',
+  'Portland Timbers': 'POR',
+  'Real Salt Lake': 'RSL',
+  'Red Bull New York': 'RBNY',
+  'San Diego FC': 'SD',
+  'San Jose Earthquakes': 'SJ',
+  'Seattle Sounders FC': 'SEA',
+  'Sporting Kansas City': 'SKC',
+  'St. Louis City SC': 'STL',
+  'St. Louis CITY SC': 'STL',
+  'Toronto FC': 'TOR',
+  'Vancouver Whitecaps': 'VAN',
+}
+
+// ── Short display names for the dropdown (mobile-friendly) ───────────────────
 export const TEAM_SHORT_NAME: Record<string, string> = {
   'Atlanta United FC': 'Atlanta Utd',
   'Austin FC': 'Austin FC',

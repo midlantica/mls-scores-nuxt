@@ -523,7 +523,7 @@
 
   /* ── Standings ──────────────────────────────────────────────────────────── */
   .standings-section {
-    margin-top: 1rem;
+    margin-top: 0;
   }
 
   .conferences-grid {

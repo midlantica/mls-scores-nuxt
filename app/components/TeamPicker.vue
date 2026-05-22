@@ -3,6 +3,7 @@
     useMyTeam,
     TEAM_LIST,
     TEAM_SHORT_NAME,
+    TEAM_ABBREV,
   } from '~/composables/useMyTeam'
 
   const emit = defineEmits<{ 'open-modal': [] }>()
@@ -58,9 +59,7 @@
       </span>
       <span class="my-team-label">
         {{
-          selectedTeam
-            ? (TEAM_SHORT_NAME[selectedTeam] ?? selectedTeam)
-            : 'My Team'
+          selectedTeam ? (TEAM_ABBREV[selectedTeam] ?? selectedTeam) : 'My Team'
         }}
       </span>
     </button>

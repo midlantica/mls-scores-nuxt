@@ -529,7 +529,7 @@
               :aria-selected="cardTab === 'yellowCards'"
               @click="cardTab = 'yellowCards'"
             >
-              🟨 Yellow
+              <span class="card-emoji">🟨</span><span>Yellow</span>
             </button>
             <button
               class="card-subtab"
@@ -538,7 +538,7 @@
               :aria-selected="cardTab === 'redCards'"
               @click="cardTab = 'redCards'"
             >
-              🟥 Red
+              <span class="card-emoji">🟥</span><span>Red</span>
             </button>
           </div>
           <div class="col-header">
@@ -609,7 +609,7 @@
 
 <style scoped>
   .stats-section {
-    padding-top: 1rem;
+    padding-top: 0;
   }
 
   /* ── Desktop: side-by-side panel rows ────────────────────────────────────── */
@@ -845,10 +845,10 @@
 
   .card-subtab {
     font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-    font-size: 0.9375rem;
+    font-size: 0.85rem;
     font-weight: 400;
     letter-spacing: 0.02em;
-    padding: 0.4rem 1rem 0.5rem;
+    padding: 0.4rem 0.6rem 0.5rem;
     background: transparent;
     border: none;
     border-bottom: 2px solid transparent;
@@ -860,6 +860,14 @@
     position: relative;
     bottom: -1px;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .card-emoji {
+    font-size: 0.8rem;
+    line-height: 1;
   }
 
   .card-subtab:hover:not(.active) {
