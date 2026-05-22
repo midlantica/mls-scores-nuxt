@@ -76,27 +76,16 @@
   }
 
   // Called from MyTeamModal when a game card is clicked.
-  // We set state first so the route watcher's /game branch sees gameDetailOpen=true
-  // and treats it as a no-op (already open), avoiding any double-open or close.
-  function openGameDetailFromTeamModal(match: Match) {
-    console.log(
-      '[DBG] openGameDetailFromTeamModal',
-      match.id,
-      'url=',
-      window.location.href
-    )
+  // We close the team modal first, then defer opening the game detail to the
+  // next tick so the click event that triggered this doesn't bubble through
+  // to the new GameDetailModal backdrop and immediately close it.
+  async function openGameDetailFromTeamModal(match: Match) {
     teamModalOpen.value = false
     viewTeam.value = null
+    await nextTick()
     gameDetailMatch.value = match
     gameDetailOpen.value = true
-    console.log(
-      '[DBG] state set: open=',
-      gameDetailOpen.value,
-      'match=',
-      gameDetailMatch.value?.id
-    )
     router.push({ path: '/game', query: { id: match.id } })
-    console.log('[DBG] router.push called')
   }
 
   function closeGameDetail() {
@@ -142,10 +131,6 @@
   }
 
   function closeAllModals() {
-    console.log(
-      '[DBG] closeAllModals called',
-      new Error().stack?.split('\n').slice(1, 4).join(' | ')
-    )
     gameDetailOpen.value = false
     gameDetailMatch.value = null
     teamModalOpen.value = false
