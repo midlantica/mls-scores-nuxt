@@ -471,8 +471,10 @@
   }
 
   .main-tab {
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 300;
+    letter-spacing: 0.06em;
     padding: 0.4rem 0.625rem;
     border-radius: 0.375rem 0.375rem 0 0;
     color: var(--color-text-secondary);
