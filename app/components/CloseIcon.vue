@@ -5,7 +5,7 @@
     height="14"
     fill="none"
     stroke="currentColor"
-    stroke-width="1.25"
+    stroke-width="1"
     stroke-linecap="round"
     style="transition: stroke 0.15s"
   >
