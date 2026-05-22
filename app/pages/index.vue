@@ -75,18 +75,28 @@
     router.push({ path: '/game', query: { id: match.id } })
   }
 
-  // Called specifically from MyTeamModal to avoid route-watcher timing issues.
-  // Sets all state directly without triggering the route watcher's else-branch.
-  // We use router.replace so the URL updates, but we guard the watcher with
-  // a flag so it doesn't close the freshly-opened game detail modal.
-  let _skipNextRouteWatcher = false
+  // Called from MyTeamModal when a game card is clicked.
+  // We set state first so the route watcher's /game branch sees gameDetailOpen=true
+  // and treats it as a no-op (already open), avoiding any double-open or close.
   function openGameDetailFromTeamModal(match: Match) {
+    console.log(
+      '[DBG] openGameDetailFromTeamModal',
+      match.id,
+      'url=',
+      window.location.href
+    )
     teamModalOpen.value = false
     viewTeam.value = null
     gameDetailMatch.value = match
     gameDetailOpen.value = true
-    _skipNextRouteWatcher = true
-    router.replace({ path: '/game', query: { id: match.id } })
+    console.log(
+      '[DBG] state set: open=',
+      gameDetailOpen.value,
+      'match=',
+      gameDetailMatch.value?.id
+    )
+    router.push({ path: '/game', query: { id: match.id } })
+    console.log('[DBG] router.push called')
   }
 
   function closeGameDetail() {
@@ -132,6 +142,10 @@
   }
 
   function closeAllModals() {
+    console.log(
+      '[DBG] closeAllModals called',
+      new Error().stack?.split('\n').slice(1, 4).join(' | ')
+    )
     gameDetailOpen.value = false
     gameDetailMatch.value = null
     teamModalOpen.value = false
@@ -185,11 +199,6 @@
   watch(
     () => route.path,
     async (path) => {
-      // Skip if a programmatic navigation already set the correct state
-      if (_skipNextRouteWatcher) {
-        _skipNextRouteWatcher = false
-        return
-      }
       if (path === '/team') {
         const name = route.query.name as string | undefined
         viewTeam.value = name ?? null
