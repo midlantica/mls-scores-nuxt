@@ -248,12 +248,15 @@
   }
 
   // Load schedule whenever the modal opens OR the displayed team changes.
-  // Using a combined watcher avoids a race condition where open and viewTeam
-  // are set in the same tick (e.g. via route navigation) and neither individual
-  // watcher sees both conditions met simultaneously.
-  watch([() => props.open, displayTeam], ([isOpen, team]) => {
-    if (isOpen && team) loadSchedule(team)
-  })
+  // immediate:true ensures we catch the case where the component mounts with
+  // open=true already (e.g. direct navigation to /team or ClientOnly hydration).
+  watch(
+    [() => props.open, displayTeam],
+    ([isOpen, team]) => {
+      if (isOpen && team) loadSchedule(team as string)
+    },
+    { immediate: true }
+  )
 
   function toMatch(evt: ScheduleEvent): Match {
     return {
