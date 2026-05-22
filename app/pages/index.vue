@@ -76,12 +76,16 @@
   }
 
   // Called specifically from MyTeamModal to avoid route-watcher timing issues.
-  // Closes the team modal state first, then opens game detail directly.
+  // Sets all state directly without triggering the route watcher's else-branch.
+  // We use router.replace so the URL updates, but we guard the watcher with
+  // a flag so it doesn't close the freshly-opened game detail modal.
+  let _skipNextRouteWatcher = false
   function openGameDetailFromTeamModal(match: Match) {
     teamModalOpen.value = false
     viewTeam.value = null
     gameDetailMatch.value = match
     gameDetailOpen.value = true
+    _skipNextRouteWatcher = true
     router.replace({ path: '/game', query: { id: match.id } })
   }
 
@@ -173,6 +177,11 @@
   watch(
     () => route.path,
     async (path) => {
+      // Skip if a programmatic navigation already set the correct state
+      if (_skipNextRouteWatcher) {
+        _skipNextRouteWatcher = false
+        return
+      }
       if (path === '/team') {
         const name = route.query.name as string | undefined
         viewTeam.value = name ?? null
