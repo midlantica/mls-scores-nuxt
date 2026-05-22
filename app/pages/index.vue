@@ -67,6 +67,20 @@
   const gameDetailOpen = ref(false)
   const gameDetailMatch = ref<Match | null>(null)
 
+  // DEBUG: watch for unexpected resets
+  watch(gameDetailOpen, (val, old) => {
+    console.log(
+      '[DBG] gameDetailOpen changed:',
+      old,
+      '->',
+      val,
+      new Error().stack?.split('\n').slice(1, 4).join(' | ')
+    )
+  })
+  watch(gameDetailMatch, (val, old) => {
+    console.log('[DBG] gameDetailMatch changed:', old?.id, '->', val?.id)
+  })
+
   function openGameDetail(match: Match) {
     // Store the match first so the route watcher can find it even if it's
     // not in the scoreboard weeks cache (e.g. opened from team schedule).
@@ -98,7 +112,11 @@
       '[DBG] after router.push — open=',
       gameDetailOpen.value,
       'match=',
-      gameDetailMatch.value?.id
+      gameDetailMatch.value?.id,
+      'route.path=',
+      route.path,
+      'route.fullPath=',
+      route.fullPath
     )
   }
 
@@ -145,6 +163,10 @@
   }
 
   function closeAllModals() {
+    console.log(
+      '[DBG] closeAllModals called',
+      new Error().stack?.split('\n')[2]
+    )
     gameDetailOpen.value = false
     gameDetailMatch.value = null
     teamModalOpen.value = false
