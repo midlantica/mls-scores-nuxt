@@ -67,20 +67,6 @@
   const gameDetailOpen = ref(false)
   const gameDetailMatch = ref<Match | null>(null)
 
-  // DEBUG: watch for unexpected resets
-  watch(gameDetailOpen, (val, old) => {
-    console.log(
-      '[DBG] gameDetailOpen changed:',
-      old,
-      '->',
-      val,
-      new Error().stack?.split('\n').slice(1, 4).join(' | ')
-    )
-  })
-  watch(gameDetailMatch, (val, old) => {
-    console.log('[DBG] gameDetailMatch changed:', old?.id, '->', val?.id)
-  })
-
   function openGameDetail(match: Match) {
     // Store the match first so the route watcher can find it even if it's
     // not in the scoreboard weeks cache (e.g. opened from team schedule).
@@ -93,31 +79,18 @@
   // We close the team modal first, then defer opening the game detail to the
   // next tick so the click event that triggered this doesn't bubble through
   // to the new GameDetailModal backdrop and immediately close it.
+  // NOTE: We do NOT call router.push here because Vue Router cancels the
+  // navigation when called during an active navigation (the /team route is
+  // still resolving). Instead we update the URL directly via history API
+  // and set state manually.
   async function openGameDetailFromTeamModal(match: Match) {
-    console.log('[DBG] openGameDetailFromTeamModal', match.id)
     teamModalOpen.value = false
     viewTeam.value = null
     await nextTick()
-    console.log('[DBG] after nextTick — setting gameDetail open')
     gameDetailMatch.value = match
     gameDetailOpen.value = true
-    console.log(
-      '[DBG] gameDetailOpen=',
-      gameDetailOpen.value,
-      'match=',
-      gameDetailMatch.value?.id
-    )
-    await router.push({ path: '/game', query: { id: match.id } })
-    console.log(
-      '[DBG] after router.push — open=',
-      gameDetailOpen.value,
-      'match=',
-      gameDetailMatch.value?.id,
-      'route.path=',
-      route.path,
-      'route.fullPath=',
-      route.fullPath
-    )
+    // Update the URL without triggering the route watcher
+    history.replaceState(history.state, '', `/game?id=${match.id}`)
   }
 
   function closeGameDetail() {
@@ -163,10 +136,6 @@
   }
 
   function closeAllModals() {
-    console.log(
-      '[DBG] closeAllModals called',
-      new Error().stack?.split('\n')[2]
-    )
     gameDetailOpen.value = false
     gameDetailMatch.value = null
     teamModalOpen.value = false
@@ -220,14 +189,6 @@
   watch(
     () => route.path,
     async (path) => {
-      console.log(
-        '[DBG] route watcher fired path=',
-        path,
-        'gameDetailOpen=',
-        gameDetailOpen.value,
-        'match=',
-        gameDetailMatch.value?.id
-      )
       if (path === '/team') {
         const name = route.query.name as string | undefined
         viewTeam.value = name ?? null
@@ -236,7 +197,6 @@
         // If gameDetailOpen is already true and match is set, this navigation
         // was triggered programmatically by openGameDetail — nothing to do.
         if (gameDetailOpen.value && gameDetailMatch.value) {
-          console.log('[DBG] route watcher /game — already open, no-op')
           // already open, no-op
         } else {
           // Back/forward navigation: try to find match in scoreboard cache
