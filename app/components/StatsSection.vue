@@ -669,6 +669,12 @@
     white-space: nowrap;
   }
 
+  @media (max-width: 360px) {
+    .stat-tab {
+      padding: 0.4rem 0.35rem 0.5rem;
+    }
+  }
+
   .stat-tab:hover:not(.active) {
     color: var(--color-text-primary);
   }

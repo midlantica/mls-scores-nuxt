@@ -89,7 +89,7 @@
           :class="{ selected: selectedTeam === team }"
           @click="choose(team)"
         >
-          {{ team }}
+          {{ TEAM_SHORT_NAME[team] ?? team }}
         </button>
       </div>
     </div>
