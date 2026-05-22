@@ -68,6 +68,8 @@
   const gameDetailMatch = ref<Match | null>(null)
 
   function openGameDetail(match: Match) {
+    // Store the match first so the route watcher can find it even if it's
+    // not in the scoreboard weeks cache (e.g. opened from team schedule).
     gameDetailMatch.value = match
     gameDetailOpen.value = true
     router.push({ path: '/game', query: { id: match.id } })
@@ -167,8 +169,12 @@
         teamModalOpen.value = true
       } else if (path === '/game') {
         const id = route.query.id as string | undefined
-        // Try to find the match in cached weeks
-        if (id) {
+        // If gameDetailMatch is already set (e.g. opened via openGameDetail),
+        // just show it — don't overwrite with a potentially-missing cache lookup.
+        if (gameDetailMatch.value && gameDetailMatch.value.id === id) {
+          gameDetailOpen.value = true
+        } else if (id) {
+          // Back/forward navigation: try to find match in scoreboard cache
           const allMatches = [
             ...weeks.this.matches,
             ...weeks.last.matches,
