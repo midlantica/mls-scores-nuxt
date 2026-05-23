@@ -196,12 +196,21 @@ const CACHE_TTL_IDLE_MS = 90_000 // 90 s — pre/post match (original rate)
 
 function hasLiveEvents(data: Record<string, unknown>): boolean {
   const events = (data.events as Array<Record<string, unknown>>) ?? []
+  const now = Date.now()
   return events.some((evt) => {
     const status = evt.status as Record<string, unknown> | undefined
     const type = status?.type as Record<string, unknown> | undefined
     const state = type?.state as string | undefined
     const name = type?.name as string | undefined
-    return state === 'in' || name === 'STATUS_HALFTIME'
+    // Currently live or halftime
+    if (state === 'in' || name === 'STATUS_HALFTIME') return true
+    // Not started but kickoff time has already passed — treat as "should be live"
+    // so we use the short TTL and re-fetch sooner to pick up the live status
+    if (state === 'pre' || name === 'STATUS_SCHEDULED') {
+      const dateStr = evt.date as string | undefined
+      if (dateStr && new Date(dateStr).getTime() <= now) return true
+    }
+    return false
   })
 }
 
