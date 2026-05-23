@@ -12,6 +12,8 @@
     TEAM_ESPN_ID,
     TEAM_ABBREV,
   } from '../composables/useMyTeam'
+  import { TEAM_COLOR_PAIRS } from '../composables/useTeamColors'
+  import { wcagContrast } from 'culori'
   import { useTimezone } from '../composables/useTimezone'
 
   // ── Club history / founding year ─────────────────────────────────────────────
@@ -480,6 +482,22 @@
       TEAM_ABBREV[awayTeam.value] ?? awayTeam.value.slice(0, 4).toUpperCase()
   )
 
+  // ── Team label colors for the events row ─────────────────────────────────
+  // Use the team's primary color if it has ≥3:1 contrast on the dark header bg.
+  // Otherwise fall back to white.
+  const HEADER_BG = '#0d0f14' // approx oklch(12% 0.01 260)
+  const FALLBACK_LABEL = '#ffffff'
+
+  function teamLabelColor(teamName: string): string {
+    const primary = TEAM_COLOR_PAIRS[teamName]?.primary
+    if (!primary) return FALLBACK_LABEL
+    const ratio = wcagContrast(primary, HEADER_BG)
+    return ratio >= 3 ? primary : FALLBACK_LABEL
+  }
+
+  const homeLabelColor = computed(() => teamLabelColor(homeTeam.value))
+  const awayLabelColor = computed(() => teamLabelColor(awayTeam.value))
+
   // ── Match events filtered by home/away team ───────────────────────────────
   // Use the ESPN team IDs from the detail.teams array (matched by homeAway flag)
   // rather than TEAM_ESPN_ID lookup, so we don't depend on name-matching.
@@ -726,7 +744,11 @@
                   class="events-line"
                 >
                   <!-- Mobile only: team label -->
-                  <span class="events-team-label">{{ homeTeamAbbrev }}:</span>
+                  <span
+                    class="events-team-label"
+                    :style="{ color: homeLabelColor }"
+                    >{{ homeTeamAbbrev }}:</span
+                  >
                   <span
                     v-for="(ev, i) in homeMatchEvents.filter(
                       (e) => e.type === 'goal'
@@ -795,7 +817,11 @@
                   class="events-line"
                 >
                   <!-- Mobile only: team label -->
-                  <span class="events-team-label">{{ awayTeamAbbrev }}:</span>
+                  <span
+                    class="events-team-label"
+                    :style="{ color: awayLabelColor }"
+                    >{{ awayTeamAbbrev }}:</span
+                  >
                   <span
                     v-for="(ev, i) in awayMatchEvents.filter(
                       (e) => e.type === 'goal'
