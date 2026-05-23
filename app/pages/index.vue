@@ -535,7 +535,7 @@
   }
 
   .main-tab {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.9375rem;
     font-weight: 300;
     letter-spacing: 0.06em;
@@ -601,7 +601,7 @@
 
   .conf-tab {
     flex: 1;
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.9375rem;
     font-weight: 400;
     letter-spacing: 0.02em;

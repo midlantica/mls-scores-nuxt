@@ -101,7 +101,7 @@
   }
 
   .conf-title {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -120,7 +120,7 @@
   .standings-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.85rem;
     font-weight: 200;
     letter-spacing: 0.05em;

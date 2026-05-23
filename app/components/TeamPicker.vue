@@ -157,7 +157,7 @@
   }
 
   .my-team-label {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.75rem;
     font-weight: 100;
     letter-spacing: 0.04em;

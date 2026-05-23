@@ -84,7 +84,7 @@
   }
 
   .tz-picker-label {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.75rem;
     font-weight: 400;
     letter-spacing: 0.04em;

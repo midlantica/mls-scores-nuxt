@@ -152,7 +152,7 @@
 
 <style scoped>
   .match-card {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     border-radius: 0.5rem;
     border: 1px solid oklab(100% 0 0 / 0.07);
     padding: 0.5rem 0.75rem;
@@ -169,7 +169,7 @@
 
   /* Day + date header row */
   .date-row {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -254,7 +254,7 @@
     /* Score pushed to far right */
     .team-score-inline {
       display: block;
-      font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+      font-family: var(--font-condensed);
       font-size: 0.9375rem;
       font-weight: 600;
       color: var(--color-text-primary);
@@ -313,14 +313,14 @@
     align-self: center;
   }
   .team-name {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1rem;
     font-weight: 300;
     letter-spacing: 0.04em;
     color: var(--color-text-primary);
   }
   .team-rec {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1rem;
     font-weight: 300;
     color: var(--color-text-secondary);
@@ -333,7 +333,7 @@
     line-height: 1;
   }
   .score-active {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--color-text-primary);
@@ -347,7 +347,7 @@
     flex-shrink: 0;
   }
   .status-vs {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.875rem;
     font-weight: 300;
     letter-spacing: 0.08em;

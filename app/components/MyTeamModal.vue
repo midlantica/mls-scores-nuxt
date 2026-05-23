@@ -1234,7 +1234,7 @@
   }
 
   .modal-team-name {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1.65rem;
     font-weight: 400;
     color: var(--color-theme-on-primary, white);
@@ -1259,7 +1259,7 @@
   }
 
   .modal-venue {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.85rem;
     font-weight: 400;
     color: color-mix(
@@ -1288,7 +1288,7 @@
   }
 
   .schedule-conference-heading {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.85rem;
     font-weight: 500;
     letter-spacing: 0.1em;
@@ -1342,7 +1342,7 @@
   }
 
   .modal-tab {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.75rem;
     font-weight: 400;
     letter-spacing: 0.12em;
@@ -1534,7 +1534,7 @@
   }
 
   .show-future-btn {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.6125rem;
     font-weight: 400;
     letter-spacing: 0.1em;
@@ -1606,7 +1606,7 @@
   }
 
   .leaders-cat-title {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.6875rem;
     font-weight: 400;
     letter-spacing: 0.15em;
@@ -1823,7 +1823,7 @@
   }
 
   .schedule-fixtures-link {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.7rem;
     font-weight: 300;
     letter-spacing: 0.06em;
@@ -1857,7 +1857,7 @@
   }
 
   .fixtures-month-label {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.9rem;
     font-weight: 400;
     letter-spacing: 0.1em;

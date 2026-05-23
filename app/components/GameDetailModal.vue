@@ -1169,7 +1169,7 @@
 
   .modal-panel {
     margin-top: 3rem;
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-weight: 100;
     letter-spacing: 0.03rem;
     background: oklch(18% 0.01 260);
@@ -1593,7 +1593,7 @@
   }
 
   .modal-tab {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.8125rem;
     font-weight: 400;
     letter-spacing: 0.12em;

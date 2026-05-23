@@ -194,7 +194,7 @@
     max-width: 64rem;
     margin: 0 auto;
     padding: 1.5rem 1rem 4rem;
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     color: #e2e8f0;
     min-height: 100dvh;
   }

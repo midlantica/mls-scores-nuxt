@@ -279,7 +279,7 @@
   }
 
   .game-block {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;

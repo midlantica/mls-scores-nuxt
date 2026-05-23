@@ -659,7 +659,7 @@
   }
 
   .stat-tab {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.9375rem;
     font-weight: 400;
     letter-spacing: 0.02em;
@@ -702,7 +702,7 @@
   }
 
   .col-stat-label {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1.2rem;
     font-weight: 500;
     letter-spacing: 0.06em;
@@ -744,7 +744,7 @@
   }
 
   .rank {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1rem;
     font-weight: 500;
     color: oklab(70% 0 0);
@@ -775,7 +775,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -791,7 +791,7 @@
   }
 
   .player-name {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1rem;
     font-weight: 400;
     letter-spacing: 0.02em;
@@ -817,7 +817,7 @@
 
   /* Team name as a button that looks like a link */
   .team-link {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.775rem;
     font-weight: 400;
     letter-spacing: 0.03em;
@@ -842,7 +842,7 @@
 
   /* ── Stat value ───────────────────────────────────────────────────────────── */
   .stat-value {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 1.375rem;
     font-weight: 400;
     letter-spacing: 0.01em;
@@ -859,7 +859,7 @@
   }
 
   .card-subtab {
-    font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-family: var(--font-condensed);
     font-size: 0.85rem;
     font-weight: 400;
     letter-spacing: 0.02em;
