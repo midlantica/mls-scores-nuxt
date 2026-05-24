@@ -1833,7 +1833,6 @@
     font-weight: 400;
     color: oklab(100% 0 0 / 0.55);
     letter-spacing: 0.08em;
-    margin-right: 0.1rem;
     flex-shrink: 0;
   }
 
