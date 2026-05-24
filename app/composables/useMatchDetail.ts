@@ -90,6 +90,7 @@ export interface MatchEvent {
   lastName: string
   clock: string
   isOG?: boolean
+  isPenalty?: boolean
 }
 
 export interface MatchDetail {

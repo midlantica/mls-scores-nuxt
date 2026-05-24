@@ -783,6 +783,7 @@
                     <span class="event-name">{{ ev.lastName }}</span>
                     <span v-if="ev.isOG" class="event-og">OG</span>
                     <span class="event-clock">{{ ev.clock }}</span>
+                    <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
                 </div>
                 <!-- Cards row -->
@@ -842,6 +843,7 @@
                     <span class="event-name">{{ ev.lastName }}</span>
                     <span v-if="ev.isOG" class="event-og">OG</span>
                     <span class="event-clock">{{ ev.clock }}</span>
+                    <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
                 </div>
                 <!-- Cards row -->
@@ -1924,6 +1926,24 @@
   .event-clock {
     font-size: 0.85rem;
     color: oklab(100% 0 0 / 0.5);
+  }
+
+  /* Penalty badge — small square box with a "P" cap */
+  .event-pen {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: oklab(100% 0 0 / 0.75);
+    background: oklab(100% 0 0 / 0.12);
+    border: 1px solid oklab(100% 0 0 / 0.2);
+    border-radius: 0.15rem;
+    padding: 0.1rem 0.2rem;
+    text-transform: uppercase;
+    flex-shrink: 0;
   }
 
   /* Badges */
