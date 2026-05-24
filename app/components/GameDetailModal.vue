@@ -761,12 +761,9 @@
             >
               <!-- Home team column -->
               <div class="header-events-col header-events-col-home">
-                <!-- Goals row -->
-                <div
-                  v-if="homeMatchEvents.some((e) => e.type === 'goal')"
-                  class="events-line"
-                >
-                  <!-- Mobile only: team label -->
+                <!-- Single merged line: label + goals + cards -->
+                <div class="events-line">
+                  <!-- Mobile only: team label (shown once) -->
                   <span
                     class="events-team-label"
                     :style="{ color: homeLabelColor }"
@@ -776,7 +773,7 @@
                     v-for="(ev, i) in homeMatchEvents.filter(
                       (e) => e.type === 'goal'
                     )"
-                    :key="i"
+                    :key="`hg-${i}`"
                     class="event-goal-item"
                   >
                     <span class="event-icon">⚽</span>
@@ -785,27 +782,11 @@
                     <span class="event-clock">{{ ev.clock }}</span>
                     <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
-                </div>
-                <!-- Cards row -->
-                <div
-                  v-if="
-                    homeMatchEvents.some(
-                      (e) => e.type === 'yellow' || e.type === 'red'
-                    )
-                  "
-                  class="events-line"
-                >
-                  <!-- Mobile only: team label -->
-                  <span
-                    class="events-team-label"
-                    :style="{ color: homeLabelColor }"
-                    >{{ homeTeamAbbrev }}:</span
-                  >
                   <span
                     v-for="(ev, i) in homeMatchEvents.filter(
                       (e) => e.type === 'yellow' || e.type === 'red'
                     )"
-                    :key="i"
+                    :key="`hc-${i}`"
                     class="event-card-item"
                   >
                     <span
@@ -821,12 +802,9 @@
 
               <!-- Away team column -->
               <div class="header-events-col header-events-col-away">
-                <!-- Goals row -->
-                <div
-                  v-if="awayMatchEvents.some((e) => e.type === 'goal')"
-                  class="events-line"
-                >
-                  <!-- Mobile only: team label -->
+                <!-- Single merged line: label + goals + cards -->
+                <div class="events-line">
+                  <!-- Mobile only: team label (shown once) -->
                   <span
                     class="events-team-label"
                     :style="{ color: awayLabelColor }"
@@ -836,7 +814,7 @@
                     v-for="(ev, i) in awayMatchEvents.filter(
                       (e) => e.type === 'goal'
                     )"
-                    :key="i"
+                    :key="`ag-${i}`"
                     class="event-goal-item"
                   >
                     <span class="event-icon">⚽</span>
@@ -845,27 +823,11 @@
                     <span class="event-clock">{{ ev.clock }}</span>
                     <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
-                </div>
-                <!-- Cards row -->
-                <div
-                  v-if="
-                    awayMatchEvents.some(
-                      (e) => e.type === 'yellow' || e.type === 'red'
-                    )
-                  "
-                  class="events-line"
-                >
-                  <!-- Mobile only: team label -->
-                  <span
-                    class="events-team-label"
-                    :style="{ color: awayLabelColor }"
-                    >{{ awayTeamAbbrev }}:</span
-                  >
                   <span
                     v-for="(ev, i) in awayMatchEvents.filter(
                       (e) => e.type === 'yellow' || e.type === 'red'
                     )"
-                    :key="i"
+                    :key="`ac-${i}`"
                     class="event-card-item"
                   >
                     <span
