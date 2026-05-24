@@ -655,7 +655,7 @@
                 >
                   {{ homeAbbr }}
                 </button>
-                <span class="header-mobile-rec">{{ match.homeRec }}</span>
+                <span v-if="match.status.code === 'ns'" class="header-mobile-rec">{{ match.homeRec }}</span>
                 <span class="header-mobile-spacer" />
                 <span
                   v-if="match.status.code !== 'ns'"
@@ -687,7 +687,7 @@
                 >
                   {{ awayAbbr }}
                 </button>
-                <span class="header-mobile-rec">{{ match.awayRec }}</span>
+                <span v-if="match.status.code === 'ns'" class="header-mobile-rec">{{ match.awayRec }}</span>
                 <span class="header-mobile-spacer" />
                 <span
                   v-if="match.status.code !== 'ns'"
@@ -725,7 +725,7 @@
                   >
                     {{ homeTeam }}
                   </button>
-                  <span class="header-team-rec">{{ match.homeRec }}</span>
+                  <span v-if="match.status.code === 'ns'" class="header-team-rec">{{ match.homeRec }}</span>
                 </div>
                 <button
                   class="header-logo-btn"
@@ -805,7 +805,7 @@
                   >
                     {{ awayTeam }}
                   </button>
-                  <span class="header-team-rec">{{ match.awayRec }}</span>
+                  <span v-if="match.status.code === 'ns'" class="header-team-rec">{{ match.awayRec }}</span>
                 </div>
               </div>
             </div>
