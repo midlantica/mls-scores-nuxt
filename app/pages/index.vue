@@ -2,6 +2,7 @@
   import { useScores, transformMatches } from '~/composables/useScores'
   import { useStandings } from '~/composables/useStandings'
   import { useStats } from '~/composables/useStats'
+  import { useAnalytics } from '~/composables/useAnalytics'
   import type { Match } from '~/composables/useScores'
 
   // Register all app routes on this single page component
@@ -11,6 +12,7 @@
 
   const router = useRouter()
   const route = useRoute()
+  const { trackPageview } = useAnalytics()
 
   // ── Main tab ──────────────────────────────────────────────────────────────────
   type MainTab = 'scores' | 'standings' | 'stats'
@@ -79,6 +81,9 @@
     // Update the URL directly without going through Vue Router,
     // so the route watcher never fires and can't interfere.
     history.replaceState(history.state, '', `/game?id=${match.id}`)
+    // Track the modal open as a /game pageview (no game ID — we only care
+    // that the modal was opened, not which specific game)
+    trackPageview('/game')
   }
 
   // Called from MyTeamModal when a game card is clicked.
@@ -97,6 +102,7 @@
     gameDetailOpen.value = true
     // Update the URL without triggering the route watcher
     history.replaceState(history.state, '', `/game?id=${match.id}`)
+    trackPageview('/game')
   }
 
   function closeGameDetail() {
@@ -127,6 +133,9 @@
     // Use history API directly so the route watcher never fires and
     // can't reset mainTab (e.g. from 'standings' back to 'scores').
     history.pushState(history.state, '', '/team')
+    // Track the modal open as a /team pageview (no team name — we only care
+    // that the modal was opened, not which specific team)
+    trackPageview('/team')
   }
 
   function openTeamModalFor(teamName: string) {
@@ -139,6 +148,8 @@
       '',
       `/team?name=${encodeURIComponent(teamName)}`
     )
+    // Track as /team — we don't record which team, just that the modal opened
+    trackPageview('/team')
   }
 
   function switchTeamModal(teamName: string) {
