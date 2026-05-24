@@ -176,6 +176,7 @@ export default defineEventHandler(async (event) => {
       lastName: string
       clock: string
       isOG?: boolean
+      isPenalty?: boolean
     }
 
     const matchEvents: MatchEvent[] = []
@@ -225,6 +226,7 @@ export default defineEventHandler(async (event) => {
           type: 'goal',
           lastName: lastName || '',
           clock,
+          isPenalty: typeSlug === 'penalty---scored',
         })
       } else if (typeSlug === 'own-goal') {
         // Own goal — ESPN's teamId is the team whose player scored it (conceding team).

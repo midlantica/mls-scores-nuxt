@@ -295,10 +295,10 @@
 
   function startPoll() {
     if (pollTimer) return
-    pollTimer = setInterval(() => {
-      if (!hasLiveMatches.value || mainTab.value !== 'scores') return
+    pollTimer = setInterval(async () => {
+      if (!hasLiveMatches.value) return
       // Force-refresh the active tab so scores + W-T-L update live
-      fetchWeek(activeTab.value, true)
+      await fetchWeek(activeTab.value, true)
       // Also refresh the 'next' tab if 'this' week has live games —
       // so next week's game cards show updated W-T-L after games complete.
       if (
@@ -307,6 +307,17 @@
         weeks.next.loaded
       ) {
         fetchWeek('next', true)
+      }
+      // Keep the open game detail modal in sync with the refreshed match data
+      if (gameDetailOpen.value && gameDetailMatch.value) {
+        const id = gameDetailMatch.value.id
+        const allMatches = [
+          ...weeks.this.matches,
+          ...weeks.last.matches,
+          ...weeks.next.matches,
+        ]
+        const refreshed = allMatches.find((m) => m.id === id)
+        if (refreshed) gameDetailMatch.value = refreshed
       }
     }, 30_000)
   }
