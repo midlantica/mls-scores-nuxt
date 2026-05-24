@@ -272,12 +272,28 @@ export default defineEventHandler(async (event) => {
         const topLeaders = (cat.leaders as Array<Record<string, unknown>>) ?? []
         const top = topLeaders[0] ?? {}
         const ath = top.athlete as Record<string, unknown> | undefined
+        // For passes, prefer the summary (e.g. "69 PASS") which shows total
+        // attempts, falling back to displayValue (accurate passes only).
+        // For other categories just use displayValue.
+        const catName = cat.name as string
+        const summary = top.summary as string | undefined
+        const displayVal = top.displayValue as string | undefined
+        // Use summary for passes so we show total attempts (e.g. "69")
+        // rather than only accurate passes (e.g. "66")
+        let value: string | undefined
+        if (catName === 'accuratePasses' && summary) {
+          // summary is like "69 PASS" — extract just the number
+          const summaryNum = summary.split(' ')[0]
+          value = summaryNum ?? displayVal
+        } else {
+          value = displayVal
+        }
         return {
-          name: cat.name as string,
+          name: catName,
           displayName: cat.displayName as string,
           shortDisplayName: cat.shortDisplayName as string,
           athlete: ath?.displayName as string | undefined,
-          value: top.displayValue as string | undefined,
+          value,
         }
       })
 
