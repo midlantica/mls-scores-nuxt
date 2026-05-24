@@ -331,7 +331,9 @@
 
   // ── Initial load (client-side) ────────────────────────────────────────────────
   async function initialLoad() {
-    await fetchWeek('this')
+    // Always force-refresh on the client so we never show stale SSR data.
+    // SSR seeds the initial render; this call gets the true live state.
+    await fetchWeek('this', true)
 
     const thisMatches = weeks.this.matches
     if (thisMatches.length === 0) {
