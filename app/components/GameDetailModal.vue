@@ -134,7 +134,7 @@
     stopPolling,
     clear,
   } = useMatchDetail()
-  const { iana } = useTimezone()
+  const { iana, formatTimeHtml } = useTimezone()
 
   function isLiveOrHT(m: Match | null) {
     return m?.status.code === 'live' || m?.status.code === 'ht'
@@ -259,6 +259,101 @@
     detail.value?.info.attendance
       ? detail.value.info.attendance.toLocaleString() + ' att.'
       : null
+  )
+
+  // Kickoff time for mobile clock block (pre-match)
+  const kickoffLabel = computed(() =>
+    props.match?.date ? formatTimeHtml(props.match.date) : ''
+  )
+
+  // ── Local clock ticker for mobile clock block (mirrors GameBlock logic) ──────
+  const localClock = ref<string | null>(null)
+  let clockBase = 0
+  let clockTickedAt = 0
+  let clockTimer: ReturnType<typeof setInterval> | null = null
+
+  function parseClock(clock: string): number {
+    const cleaned = clock.replace(/['''′`]/g, '')
+    const [m = '0', s = '0'] = cleaned.split(':')
+    return parseInt(m, 10) * 60 + parseInt(s, 10)
+  }
+
+  function formatClock(totalSeconds: number): string {
+    const m = Math.floor(totalSeconds / 60)
+    const s = totalSeconds % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  function startClockTicker() {
+    stopClockTicker()
+    if (props.match?.status.code !== 'live' || !props.match.status.clock) return
+    clockBase = parseClock(props.match.status.clock)
+    clockTickedAt = Date.now()
+    localClock.value = formatClock(clockBase)
+    clockTimer = setInterval(() => {
+      if (props.match?.status.code !== 'live') {
+        stopClockTicker()
+        return
+      }
+      const elapsed = Math.floor((Date.now() - clockTickedAt) / 1000)
+      localClock.value = formatClock(clockBase + elapsed)
+    }, 1000)
+  }
+
+  function stopClockTicker() {
+    if (clockTimer) {
+      clearInterval(clockTimer)
+      clockTimer = null
+    }
+  }
+
+  watch(
+    () => props.match?.status.clock,
+    (newClock) => {
+      if (props.match?.status.code === 'live' && newClock) {
+        startClockTicker()
+      } else {
+        stopClockTicker()
+        localClock.value = null
+      }
+    }
+  )
+
+  watch(
+    () => props.match?.status.code,
+    (code) => {
+      if (code === 'live' && props.match?.status.clock) {
+        startClockTicker()
+      } else {
+        stopClockTicker()
+        localClock.value = null
+      }
+    }
+  )
+
+  watch(
+    () => props.open,
+    (open) => {
+      if (
+        open &&
+        props.match?.status.code === 'live' &&
+        props.match.status.clock
+      ) {
+        startClockTicker()
+      } else if (!open) {
+        stopClockTicker()
+      }
+    }
+  )
+
+  onMounted(() => {
+    if (props.match?.status.code === 'live' && props.match.status.clock) {
+      startClockTicker()
+    }
+  })
+
+  const displayClock = computed(
+    () => localClock.value ?? props.match?.status.clock ?? 'LIVE'
   )
 
   // Combined venue + attendance for desktop header footer line
@@ -631,78 +726,127 @@
           <div class="modal-header">
             <!-- Mobile game-card header (hidden on desktop) -->
             <div class="header-mobile">
-              <!-- Home team row -->
-              <div class="header-mobile-team">
-                <button
-                  class="header-logo-btn"
-                  @click.stop="emit('select-team', homeTeam)"
-                >
-                  <img
-                    v-if="homeLogo"
-                    :src="homeLogo"
-                    :alt="homeTeam"
-                    class="header-mobile-logo"
+              <!-- Venue info — above the scores -->
+              <div v-if="matchVenue" class="header-mobile-venue-row">
+                {{ matchVenue }}
+              </div>
+              <!-- Scores + clock layout: left=teams+scores, right=clock/status+date -->
+              <div class="header-mobile-scores-clock">
+                <!-- Left: stacked team rows -->
+                <div class="header-mobile-teams">
+                  <!-- Home team row -->
+                  <div class="header-mobile-team">
+                    <button
+                      class="header-logo-btn"
+                      @click.stop="emit('select-team', homeTeam)"
+                    >
+                      <img
+                        v-if="homeLogo"
+                        :src="homeLogo"
+                        :alt="homeTeam"
+                        class="header-mobile-logo"
+                      />
+                      <span
+                        v-else
+                        class="header-mobile-swatch"
+                        :style="{ background: match.homeColor }"
+                      />
+                    </button>
+                    <button
+                      class="header-mobile-name header-mobile-name-btn"
+                      @click.stop="emit('select-team', homeTeam)"
+                    >
+                      {{ homeAbbr }}
+                    </button>
+                    <span
+                      v-if="match.status.code === 'ns'"
+                      class="header-mobile-rec"
+                      >{{ match.homeRec }}</span
+                    >
+                    <span class="header-mobile-spacer" />
+                    <span
+                      v-if="match.status.code !== 'ns'"
+                      class="header-mobile-score"
+                      :class="{
+                        'score-loser':
+                          match.status.code === 'ft' &&
+                          (match.homeScore ?? 0) < (match.awayScore ?? 0),
+                      }"
+                      >{{ match.homeScore ?? '0' }}</span
+                    >
+                  </div>
+                  <!-- Away team row -->
+                  <div class="header-mobile-team">
+                    <button
+                      class="header-logo-btn"
+                      @click.stop="emit('select-team', awayTeam)"
+                    >
+                      <img
+                        v-if="awayLogo"
+                        :src="awayLogo"
+                        :alt="awayTeam"
+                        class="header-mobile-logo"
+                      />
+                      <span
+                        v-else
+                        class="header-mobile-swatch"
+                        :style="{ background: match.awayColor }"
+                      />
+                    </button>
+                    <button
+                      class="header-mobile-name header-mobile-name-btn"
+                      @click.stop="emit('select-team', awayTeam)"
+                    >
+                      {{ awayAbbr }}
+                    </button>
+                    <span
+                      v-if="match.status.code === 'ns'"
+                      class="header-mobile-rec"
+                      >{{ match.awayRec }}</span
+                    >
+                    <span class="header-mobile-spacer" />
+                    <span
+                      v-if="match.status.code !== 'ns'"
+                      class="header-mobile-score"
+                      :class="{
+                        'score-loser':
+                          match.status.code === 'ft' &&
+                          (match.awayScore ?? 0) < (match.homeScore ?? 0),
+                      }"
+                      >{{ match.awayScore ?? '0' }}</span
+                    >
+                  </div>
+                </div>
+                <!-- Right: clock/status badge + date -->
+                <div class="header-mobile-clock-block">
+                  <span
+                    v-if="match.status.code === 'ns'"
+                    class="header-mobile-kickoff"
+                    v-html="kickoffLabel"
                   />
                   <span
-                    v-else
-                    class="header-mobile-swatch"
-                    :style="{ background: match.homeColor }"
-                  />
-                </button>
-                <button
-                  class="header-mobile-name header-mobile-name-btn"
-                  @click.stop="emit('select-team', homeTeam)"
-                >
-                  {{ homeAbbr }}
-                </button>
-                <span v-if="match.status.code === 'ns'" class="header-mobile-rec">{{ match.homeRec }}</span>
-                <span class="header-mobile-spacer" />
-                <span
-                  v-if="match.status.code !== 'ns'"
-                  class="header-mobile-score"
-                  >{{ match.homeScore ?? '0' }}</span
-                >
-              </div>
-              <!-- Away team row -->
-              <div class="header-mobile-team">
-                <button
-                  class="header-logo-btn"
-                  @click.stop="emit('select-team', awayTeam)"
-                >
-                  <img
-                    v-if="awayLogo"
-                    :src="awayLogo"
-                    :alt="awayTeam"
-                    class="header-mobile-logo"
-                  />
+                    v-else-if="match.status.code === 'live'"
+                    class="badge badge-live header-mobile-badge header-mobile-badge-live"
+                    >{{ displayClock }}</span
+                  >
+                  <span
+                    v-else-if="match.status.code === 'ht'"
+                    class="badge badge-ht header-mobile-badge header-mobile-badge-compact"
+                    >HT</span
+                  >
                   <span
                     v-else
-                    class="header-mobile-swatch"
-                    :style="{ background: match.awayColor }"
-                  />
-                </button>
-                <button
-                  class="header-mobile-name header-mobile-name-btn"
-                  @click.stop="emit('select-team', awayTeam)"
-                >
-                  {{ awayAbbr }}
-                </button>
-                <span v-if="match.status.code === 'ns'" class="header-mobile-rec">{{ match.awayRec }}</span>
-                <span class="header-mobile-spacer" />
-                <span
-                  v-if="match.status.code !== 'ns'"
-                  class="header-mobile-score"
-                  >{{ match.awayScore ?? '0' }}</span
-                >
+                    class="badge badge-ft header-mobile-badge header-mobile-badge-compact"
+                    >FT</span
+                  >
+                  <span class="header-mobile-clock-date">{{
+                    matchMeta.split(' · ')[0]
+                  }}</span>
+                </div>
               </div>
-              <!-- Meta info -->
+              <!-- Meta info: date/time line -->
               <div class="header-mobile-meta">
                 <span class="header-meta-line">{{ matchMeta }}</span>
-                <span
-                  v-if="matchVenueAttendance"
-                  class="header-meta-line header-venue"
-                  >{{ matchVenueAttendance }}</span
-                >
               </div>
             </div>
 
@@ -725,7 +869,11 @@
                   >
                     {{ homeTeam }}
                   </button>
-                  <span v-if="match.status.code === 'ns'" class="header-team-rec">{{ match.homeRec }}</span>
+                  <span
+                    v-if="match.status.code === 'ns'"
+                    class="header-team-rec"
+                    >{{ match.homeRec }}</span
+                  >
                 </div>
                 <button
                   class="header-logo-btn"
@@ -751,6 +899,11 @@
                   <span
                     v-if="match.status.code !== 'ns'"
                     class="header-score"
+                    :class="{
+                      'score-loser':
+                        match.status.code === 'ft' &&
+                        (match.homeScore ?? 0) < (match.awayScore ?? 0),
+                    }"
                     >{{ match.homeScore ?? '0' }}</span
                   >
                   <span class="header-sep">
@@ -772,6 +925,11 @@
                   <span
                     v-if="match.status.code !== 'ns'"
                     class="header-score"
+                    :class="{
+                      'score-loser':
+                        match.status.code === 'ft' &&
+                        (match.awayScore ?? 0) < (match.homeScore ?? 0),
+                    }"
                     >{{ match.awayScore ?? '0' }}</span
                   >
                 </div>
@@ -805,7 +963,11 @@
                   >
                     {{ awayTeam }}
                   </button>
-                  <span v-if="match.status.code === 'ns'" class="header-team-rec">{{ match.awayRec }}</span>
+                  <span
+                    v-if="match.status.code === 'ns'"
+                    class="header-team-rec"
+                    >{{ match.awayRec }}</span
+                  >
                 </div>
               </div>
             </div>
@@ -833,7 +995,12 @@
                     <span class="event-icon">⚽</span>
                     <span class="event-name">{{ ev.lastName }}</span>
                     <span v-if="ev.isOG" class="event-og">OG</span>
-                    <span v-for="(clk, ci) in ev.clocks" :key="ci" class="event-clock">{{ clk }}</span>
+                    <span
+                      v-for="(clk, ci) in ev.clocks"
+                      :key="ci"
+                      class="event-clock"
+                      >{{ clk }}</span
+                    >
                     <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
                   <span
@@ -847,7 +1014,12 @@
                     />
                     <span v-else class="event-card event-card-red" />
                     <span class="event-name">{{ ev.lastName }}</span>
-                    <span v-for="(clk, ci) in ev.clocks" :key="ci" class="event-clock">{{ clk }}</span>
+                    <span
+                      v-for="(clk, ci) in ev.clocks"
+                      :key="ci"
+                      class="event-clock"
+                      >{{ clk }}</span
+                    >
                   </span>
                 </div>
               </div>
@@ -870,7 +1042,12 @@
                     <span class="event-icon">⚽</span>
                     <span class="event-name">{{ ev.lastName }}</span>
                     <span v-if="ev.isOG" class="event-og">OG</span>
-                    <span v-for="(clk, ci) in ev.clocks" :key="ci" class="event-clock">{{ clk }}</span>
+                    <span
+                      v-for="(clk, ci) in ev.clocks"
+                      :key="ci"
+                      class="event-clock"
+                      >{{ clk }}</span
+                    >
                     <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
                   <span
@@ -884,7 +1061,12 @@
                     />
                     <span v-else class="event-card event-card-red" />
                     <span class="event-name">{{ ev.lastName }}</span>
-                    <span v-for="(clk, ci) in ev.clocks" :key="ci" class="event-clock">{{ clk }}</span>
+                    <span
+                      v-for="(clk, ci) in ev.clocks"
+                      :key="ci"
+                      class="event-clock"
+                      >{{ clk }}</span
+                    >
                   </span>
                 </div>
               </div>
@@ -1591,6 +1773,12 @@
     align-self: center;
   }
 
+  /* Losing score after FT — dimmed, lighter weight */
+  .score-loser {
+    color: oklab(0.63 0 0);
+    font-weight: 300;
+  }
+
   .header-mobile-meta {
     display: flex;
     flex-direction: column;
@@ -1599,6 +1787,104 @@
     padding-top: 0.25rem;
     border-top: 1px solid oklab(100% 0 0 / 0.08);
     margin-top: 0.1rem;
+  }
+
+  /* ── Mobile scores + clock layout ─────────────────────────────────────────── */
+  .header-mobile-scores-clock {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.7rem;
+    width: 100%;
+  }
+
+  .header-mobile-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Right block: clock badge on top, date below — matches game card style */
+  .header-mobile-clock-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    padding-left: 0.75rem;
+    min-width: 5rem;
+    text-align: center;
+    border-left: 1px solid oklab(100% 0 0 / 0.1);
+  }
+
+  /* Badge in the clock block — matches game card badge exactly, scaled up */
+  .header-mobile-badge {
+    font-size: 1.15rem;
+    font-weight: 200;
+    letter-spacing: 0.12em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.2rem;
+    background: oklab(28% -0.01 -0.02 / 0.85) !important;
+    color: white !important;
+    white-space: nowrap;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Live clock badge fills the full width of the date below */
+  .header-mobile-badge-live {
+    width: 100%;
+    box-sizing: border-box;
+    align-self: stretch;
+  }
+
+  /* HT / FT badge: auto-width, centered above the date */
+  .header-mobile-badge-compact {
+    width: auto;
+    align-self: center;
+  }
+
+  /* Pre-match kickoff time — centered in clock block */
+  .header-mobile-kickoff {
+    font-size: 1.15rem;
+    font-weight: 100;
+    color: oklab(100% 0 0);
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .header-mobile-kickoff :deep(.ampm) {
+    font-size: 1em;
+    font-weight: 100;
+  }
+
+  /* Date text below clock — matches game card status-date */
+  .header-mobile-clock-date {
+    font-size: 1rem;
+    font-weight: 100;
+    color: oklab(90% 0 0);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  /* Venue row — sits ABOVE the scores, with border-bottom separator */
+  .header-mobile-venue-row {
+    border-bottom: 1px solid oklab(100% 0 0 / 0.08);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.05rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: oklab(100% 0 0 / 0.75);
+    letter-spacing: 0.04em;
+    width: 100%;
   }
 
   /* ── Header ───────────────────────────────────────────────────────────────── */
@@ -1754,6 +2040,11 @@
     min-width: 1.25ch;
     text-align: center;
     letter-spacing: 0.01em;
+  }
+
+  .header-score.score-loser {
+    color: oklab(0.63 0 0);
+    font-weight: 300;
   }
 
   .header-sep {
