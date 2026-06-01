@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { TEAM_LOGO } from '~/composables/useMyTeam'
   import { useTimezone } from '~/composables/useTimezone'
+  import { POST_WC_NOTICE_TITLE, POST_WC_NOTICE_MESSAGE } from '~/constants/mls'
 
   interface FixtureEvent {
     id: string
@@ -72,7 +73,10 @@
   function fixtureDate(iso: string): { weekday: string; date: string } {
     const d = new Date(iso)
     return {
-      weekday: d.toLocaleDateString('en-US', { weekday: 'short', timeZone: iana.value }),
+      weekday: d.toLocaleDateString('en-US', {
+        weekday: 'short',
+        timeZone: iana.value,
+      }),
       date: d.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -114,10 +118,15 @@
             :class="{ 'row-stripe': ei % 2 === 1 }"
           >
             <div class="fx-date">
-              <span class="fx-date-weekday">{{ fixtureDate(evt.date).weekday }}</span>
+              <span class="fx-date-weekday">{{
+                fixtureDate(evt.date).weekday
+              }}</span>
               <span class="fx-date-md">{{ fixtureDate(evt.date).date }}</span>
             </div>
-            <button class="fx-home fx-team-btn" @click.stop="emit('select-team', evt.homeTeam)">
+            <button
+              class="fx-home fx-team-btn"
+              @click.stop="emit('select-team', evt.homeTeam)"
+            >
               <img
                 v-if="TEAM_LOGO[evt.homeTeam]"
                 :src="TEAM_LOGO[evt.homeTeam]"
@@ -131,19 +140,32 @@
               >
             </button>
             <div class="fx-center">
-              <template v-if="evt.statusCode === 'ft' || evt.statusCode === 'live' || evt.statusCode === 'ht'">
-                <span class="fx-score">{{ evt.homeScore }} – {{ evt.awayScore }}</span>
+              <template
+                v-if="
+                  evt.statusCode === 'ft' ||
+                  evt.statusCode === 'live' ||
+                  evt.statusCode === 'ht'
+                "
+              >
+                <span class="fx-score"
+                  >{{ evt.homeScore }} – {{ evt.awayScore }}</span
+                >
                 <span
                   v-if="evt.statusCode === 'live' || evt.statusCode === 'ht'"
                   class="fx-badge fx-badge-live"
-                  >{{ evt.statusCode === 'ht' ? 'HT' : evt.statusClock || 'LIVE' }}</span
+                  >{{
+                    evt.statusCode === 'ht' ? 'HT' : evt.statusClock || 'LIVE'
+                  }}</span
                 >
               </template>
               <template v-else>
                 <span class="fx-time">{{ fixtureTime(evt.date) }}</span>
               </template>
             </div>
-            <button class="fx-away fx-team-btn" @click.stop="emit('select-team', evt.awayTeam)">
+            <button
+              class="fx-away fx-team-btn"
+              @click.stop="emit('select-team', evt.awayTeam)"
+            >
               <img
                 v-if="TEAM_LOGO[evt.awayTeam]"
                 :src="TEAM_LOGO[evt.awayTeam]"
@@ -160,7 +182,14 @@
         </div>
       </div>
     </template>
+
+    <HiatusBanner
+      :show-icon="false"
+      :title="POST_WC_NOTICE_TITLE"
+      :message="POST_WC_NOTICE_MESSAGE"
+    />
   </div>
+
   <div v-else class="tab-empty">No fixtures available.</div>
 </template>
 
@@ -179,8 +208,13 @@
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
   }
 
   .tab-empty {

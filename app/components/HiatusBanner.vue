@@ -3,11 +3,15 @@
     defineProps<{
       dismissible?: boolean
       message?: string
+      title?: string
+      showIcon?: boolean
     }>(),
     {
       dismissible: false,
       message:
         "The MLS season is on hiatus for the 2026 FIFA World Cup — but we'll be back soon! MLS play resumes July 22, 2026.",
+      title: '',
+      showIcon: true,
     }
   )
 
@@ -17,11 +21,15 @@
 <template>
   <div v-if="!dismissed" class="hiatus-banner" role="status">
     <img
+      v-if="showIcon"
       src="/FIFA-WC-2026.svg"
       alt="FIFA World Cup 2026"
       class="hiatus-icon"
     />
-    <span class="hiatus-text">{{ message }}</span>
+    <span class="hiatus-text">
+      <strong v-if="title" class="hiatus-title">{{ title }}</strong>
+      <span>{{ message }}</span>
+    </span>
     <button
       v-if="dismissible"
       class="hiatus-close"
@@ -55,6 +63,12 @@
 
   .hiatus-text {
     flex: 1;
+  }
+
+  .hiatus-title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.1rem;
   }
 
   .hiatus-close {

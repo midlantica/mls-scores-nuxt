@@ -1,7 +1,12 @@
 <script setup lang="ts">
   import { useScores } from '~/composables/useScores'
   import { useMatchView } from '~/composables/useMatchView'
-  import { WC_ANNOUNCED, WC_RESUME } from '~/constants/mls'
+  import {
+    WC_ANNOUNCED,
+    WC_RESUME,
+    POST_WC_NOTICE_TITLE,
+    POST_WC_NOTICE_MESSAGE,
+  } from '~/constants/mls'
 
   import type { Match } from '~/composables/useScores'
   const emit = defineEmits<{
@@ -48,7 +53,9 @@
 
   // ── localStorage persistence ──────────────────────────────────────────────
   function todayCTKey(): string {
-    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' })
+    return new Date().toLocaleDateString('en-CA', {
+      timeZone: 'America/Chicago',
+    })
   }
 
   function storageKey(): string {
@@ -74,17 +81,21 @@
   function saveCollapse() {
     if (typeof localStorage === 'undefined') return
     const payload: CollapseStorage = {
-      days: [...manuallyToggledDays.value].filter((k) =>
-        collapsedDays.value.has(k)
-      ).concat(
-        // Also save days that were manually OPENED (toggled but not collapsed)
-        [...manuallyToggledDays.value].filter((k) => !collapsedDays.value.has(k)).map((k) => `open:${k}`)
-      ),
-      slots: [...manuallyToggledSlots.value].filter((k) =>
-        collapsedSlots.value.has(k)
-      ).concat(
-        [...manuallyToggledSlots.value].filter((k) => !collapsedSlots.value.has(k)).map((k) => `open:${k}`)
-      ),
+      days: [...manuallyToggledDays.value]
+        .filter((k) => collapsedDays.value.has(k))
+        .concat(
+          // Also save days that were manually OPENED (toggled but not collapsed)
+          [...manuallyToggledDays.value]
+            .filter((k) => !collapsedDays.value.has(k))
+            .map((k) => `open:${k}`)
+        ),
+      slots: [...manuallyToggledSlots.value]
+        .filter((k) => collapsedSlots.value.has(k))
+        .concat(
+          [...manuallyToggledSlots.value]
+            .filter((k) => !collapsedSlots.value.has(k))
+            .map((k) => `open:${k}`)
+        ),
     }
     localStorage.setItem(storageKey(), JSON.stringify(payload))
   }
@@ -128,10 +139,18 @@
 
     // Load any user-toggled state saved earlier today
     const saved = loadSavedCollapse()
-    const savedCollapsedDays = new Set(saved.days.filter((k) => !k.startsWith('open:')))
-    const savedOpenDays = new Set(saved.days.filter((k) => k.startsWith('open:')).map((k) => k.slice(5)))
-    const savedCollapsedSlots = new Set(saved.slots.filter((k) => !k.startsWith('open:')))
-    const savedOpenSlots = new Set(saved.slots.filter((k) => k.startsWith('open:')).map((k) => k.slice(5)))
+    const savedCollapsedDays = new Set(
+      saved.days.filter((k) => !k.startsWith('open:'))
+    )
+    const savedOpenDays = new Set(
+      saved.days.filter((k) => k.startsWith('open:')).map((k) => k.slice(5))
+    )
+    const savedCollapsedSlots = new Set(
+      saved.slots.filter((k) => !k.startsWith('open:'))
+    )
+    const savedOpenSlots = new Set(
+      saved.slots.filter((k) => k.startsWith('open:')).map((k) => k.slice(5))
+    )
 
     // Restore manually-toggled tracking sets from saved state
     for (const k of savedCollapsedDays) manuallyToggledDays.value.add(k)
@@ -262,6 +281,15 @@
         </div>
       </template>
     </section>
+
+    <!-- Post-World Cup schedule notice: only on the Next tab, at the very
+         bottom of the listings so people know why no more games are shown. -->
+    <HiatusBanner
+      v-if="activeTab === 'next'"
+      :show-icon="false"
+      :title="POST_WC_NOTICE_TITLE"
+      :message="POST_WC_NOTICE_MESSAGE"
+    />
   </div>
 </template>
 

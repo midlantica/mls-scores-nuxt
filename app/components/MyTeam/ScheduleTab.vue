@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import type { Match } from '~/composables/useScores'
+  import { POST_WC_NOTICE_TITLE, POST_WC_NOTICE_MESSAGE } from '~/constants/mls'
 
   defineProps<{
     scheduleLoading: boolean
@@ -25,7 +26,10 @@
   <div v-else-if="scheduleError" class="tab-empty">{{ scheduleError }}</div>
   <template v-else>
     <div class="schedule-body">
-      <div v-if="showMoreGames && moreUpcomingMatches.length" class="schedule-section">
+      <div
+        v-if="showMoreGames && moreUpcomingMatches.length"
+        class="schedule-section"
+      >
         <div class="schedule-list">
           <GameBlock
             v-for="match in moreUpcomingMatches"
@@ -48,7 +52,10 @@
 
       <div v-if="nextGame" class="schedule-section">
         <div class="schedule-list schedule-list--single">
-          <GameBlock :match="nextGame" @open-game-detail="emit('open-game-detail', $event)" />
+          <GameBlock
+            :match="nextGame"
+            @open-game-detail="emit('open-game-detail', $event)"
+          />
         </div>
       </div>
 
@@ -68,10 +75,19 @@
       </p>
 
       <div v-if="hasFixtures" class="schedule-fixtures-link-row">
-        <button class="schedule-fixtures-link" @click="emit('navigate-fixtures')">
+        <button
+          class="schedule-fixtures-link"
+          @click="emit('navigate-fixtures')"
+        >
           Show all 2026 fixtures
         </button>
       </div>
+
+      <HiatusBanner
+        :show-icon="false"
+        :title="POST_WC_NOTICE_TITLE"
+        :message="POST_WC_NOTICE_MESSAGE"
+      />
     </div>
   </template>
 </template>
@@ -211,8 +227,13 @@
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
   }
 
   .tab-empty {
