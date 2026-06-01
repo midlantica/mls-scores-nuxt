@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import type { Match } from '~/composables/useScores'
-  import { POST_WC_NOTICE_TITLE, POST_WC_NOTICE_MESSAGE } from '~/constants/mls'
 
   defineProps<{
     scheduleLoading: boolean
@@ -82,12 +81,6 @@
           Show all 2026 fixtures
         </button>
       </div>
-
-      <HiatusBanner
-        :show-icon="false"
-        :title="POST_WC_NOTICE_TITLE"
-        :message="POST_WC_NOTICE_MESSAGE"
-      />
     </div>
   </template>
 </template>
