@@ -1,14 +1,7 @@
 <script setup lang="ts">
   import type { Match } from '~/composables/useScores'
-  import {
-    useMatchDetail,
-    type MatchEvent,
-  } from '~/composables/useMatchDetail'
-  import {
-    TEAM_LOGO,
-    TEAM_ESPN_ID,
-    TEAM_ABBREV,
-  } from '~/composables/useMyTeam'
+  import { useMatchDetail, type MatchEvent } from '~/composables/useMatchDetail'
+  import { TEAM_LOGO, TEAM_ESPN_ID, TEAM_ABBREV } from '~/composables/useMyTeam'
   import { TEAM_COLOR_PAIRS } from '~/composables/useTeamColors'
   import { wcagContrast } from 'culori'
   import { useTimezone } from '~/composables/useTimezone'
@@ -708,8 +701,8 @@
             >
               <!-- Home team column -->
               <div class="header-events-col header-events-col-home">
-                <!-- Single merged line: label + goals + cards -->
-                <div class="events-line">
+                <!-- Goals line -->
+                <div class="events-goals-line">
                   <!-- Mobile only: team label (shown once) -->
                   <span
                     class="events-team-label"
@@ -732,6 +725,9 @@
                     >
                     <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
+                </div>
+                <!-- Cards line -->
+                <div v-if="homeGroupedCards.length" class="events-cards-line">
                   <span
                     v-for="(ev, i) in homeGroupedCards"
                     :key="`hc-${i}`"
@@ -755,8 +751,8 @@
 
               <!-- Away team column -->
               <div class="header-events-col header-events-col-away">
-                <!-- Single merged line: label + goals + cards -->
-                <div class="events-line">
+                <!-- Goals line -->
+                <div class="events-goals-line">
                   <!-- Mobile only: team label (shown once) -->
                   <span
                     class="events-team-label"
@@ -779,6 +775,9 @@
                     >
                     <span v-if="ev.isPenalty" class="event-pen">P</span>
                   </span>
+                </div>
+                <!-- Cards line -->
+                <div v-if="awayGroupedCards.length" class="events-cards-line">
                   <span
                     v-for="(ev, i) in awayGroupedCards"
                     :key="`ac-${i}`"
@@ -1423,49 +1422,64 @@
     }
   }
 
+  /* Each team's block: goals line stacked above cards line */
   .header-events-col {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: center;
-    gap: 0.1rem 0.4rem;
+    flex-direction: column;
+    gap: 0.15rem;
     flex: 1;
     min-width: 0;
   }
 
+  /* Desktop: hug the central vertical axis (home flush right, away flush left) */
   .header-events-col-home {
-    justify-content: flex-end;
-    align-items: center;
+    align-items: flex-end;
   }
 
   .header-events-col-away {
-    justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
   }
 
   @media (max-width: 599px) {
+    .header-events-col {
+      align-items: center;
+    }
+
     .header-events-col-home {
-      justify-content: flex-start;
       padding-bottom: 0.3rem;
       border-bottom: 1px solid oklab(100% 0 0 / 0.08);
       margin-bottom: 0.3rem;
     }
-
-    .header-events-col-away {
-      justify-content: flex-start;
-    }
   }
 
-  .events-line {
+  .events-goals-line,
+  .events-cards-line {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0 0.35rem;
+    gap: 0.1rem 0.35rem;
     font-size: 0.85rem;
     font-weight: 200;
     color: oklab(100% 0 0 / 0.85);
     letter-spacing: 0.03em;
+    width: 100%;
+  }
+
+  .header-events-col-home .events-goals-line,
+  .header-events-col-home .events-cards-line {
+    justify-content: flex-end;
+  }
+
+  .header-events-col-away .events-goals-line,
+  .header-events-col-away .events-cards-line {
     justify-content: flex-start;
+  }
+
+  @media (max-width: 599px) {
+    .events-goals-line,
+    .events-cards-line {
+      justify-content: center;
+    }
   }
 
   /* Mobile: show team abbreviation label; hidden on desktop */
