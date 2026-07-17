@@ -1,14 +1,9 @@
 <script setup lang="ts">
   import { useScores } from '~/composables/useScores'
   import { useMatchView } from '~/composables/useMatchView'
-  import {
-    WC_ANNOUNCED,
-    WC_RESUME,
-    POST_WC_NOTICE_TITLE,
-    POST_WC_NOTICE_MESSAGE,
-  } from '~/constants/mls'
 
   import type { Match } from '~/composables/useScores'
+
   const emit = defineEmits<{
     'select-team': [team: string]
     'open-game-detail': [match: Match]
@@ -21,18 +16,6 @@
   // Hiatus message comes from the server (scores API) — it's set when the
   // current week falls inside a known hiatus window (WC break, off-season).
   const hiatusMsg = computed(() => weeks[activeTab.value].hiatus ?? null)
-
-  // Banner: shown on "next" tab when today is inside a hiatus window.
-  // Uses the "this week" hiatus flag OR a direct date-range check as fallback
-  // (in case "this week" data hasn't loaded yet when the user lands on Next).
-  const showHiatusBanner = computed((): boolean => {
-    if (activeTab.value !== 'next') return false
-    if (weeks.this.hiatus) return true
-    // Show banner on Next tab any time before MLS resumes (Jul 22 2026),
-    // covering both the lead-up to the break and the break itself.
-    const today = new Date()
-    return today >= WC_ANNOUNCED && today < WC_RESUME
-  })
 
   const { weekByDayGroups } = useMatchView(allWeekMatches, activeTab)
 
@@ -216,9 +199,6 @@
     </button>
   </div>
 
-  <!-- Hiatus banner: always shown at top of content when on Next tab during WC break -->
-  <HiatusBanner v-if="showHiatusBanner" :dismissible="true" />
-
   <!-- Hiatus message (only after load completes and no matches) -->
   <div
     v-if="hiatusMsg && !allWeekMatches.length && !weeks[activeTab].loading"
@@ -281,15 +261,6 @@
         </div>
       </template>
     </section>
-
-    <!-- Post-World Cup schedule notice: only on the Next tab, at the very
-         bottom of the listings so people know why no more games are shown. -->
-    <HiatusBanner
-      v-if="activeTab === 'next'"
-      :show-icon="false"
-      :title="POST_WC_NOTICE_TITLE"
-      :message="POST_WC_NOTICE_MESSAGE"
-    />
   </div>
 </template>
 

@@ -8,6 +8,10 @@
     nextGame: Match | null
     pastMatches: Match[]
     hasFixtures: boolean
+    totalGames: number
+    gamesPlayed: number
+    gamesRemaining: number
+    seasonEndDate: string | null
   }>()
 
   const emit = defineEmits<{
@@ -25,6 +29,13 @@
   <div v-else-if="scheduleError" class="tab-empty">{{ scheduleError }}</div>
   <template v-else>
     <div class="schedule-body">
+      <p v-if="totalGames > 0" class="season-progress">
+        {{ gamesPlayed }} of {{ totalGames }} games played ·
+        {{ gamesRemaining }} remaining<template v-if="seasonEndDate">
+          · Season ends {{ seasonEndDate }}</template
+        >
+      </p>
+
       <div
         v-if="showMoreGames && moreUpcomingMatches.length"
         class="schedule-section"
@@ -46,8 +57,6 @@
       >
         {{ showMoreGames ? 'Hide More Games' : 'Show More Games' }}
       </button>
-
-      <HiatusBanner />
 
       <div v-if="nextGame" class="schedule-section">
         <div class="schedule-list schedule-list--single">
@@ -90,6 +99,16 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .season-progress {
+    font-family: var(--font-condensed);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: oklab(100% 0 0 / 0.5);
+    text-align: center;
+    padding-bottom: 0.25rem;
   }
 
   .schedule-section {

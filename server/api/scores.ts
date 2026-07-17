@@ -20,10 +20,13 @@ function fmtUTC(d: Date): string {
 }
 
 // ── MLS hiatus / off-season windows ──────────────────────────────────────────
-// During the World Cup hiatus (Jun 11 – Jul 19 2026) and the off-season,
-// "Last Week" snaps back to the last week with MLS games, and "Next Week"
-// snaps forward to the first week with MLS games, so users always see real
-// match data rather than an empty calendar week.
+// During the World Cup hiatus and the off-season, MLS mostly doesn't play —
+// but ESPN sometimes schedules a handful of games inside these windows (e.g.
+// a short return before the official resumption date). To avoid hiding real
+// games, we ALWAYS fetch ESPN for the literal calendar week first. Only when
+// ESPN returns zero events for that week do we fall back to the hiatus
+// message ("This Week") or snap to the nearest MLS week with games
+// ("Last"/"Next" Week) — see the handler below.
 interface HiatusWindow {
   start: Date // first day of hiatus (inclusive)
   end: Date // last day of hiatus (inclusive)
@@ -60,15 +63,15 @@ function getHiatus(d: Date): HiatusWindow | null {
   return HIATUS_WINDOWS.find((h) => d >= h.start && d <= h.end) ?? null
 }
 
-function weekRange(
-  offset: number,
-  ctNow?: Date
-): {
+interface WeekBounds {
   from: string
   to: string
   label: string
-  hiatus?: string // present when this tab is inside a hiatus window
-} {
+  monday: Date
+}
+
+/** Compute the literal calendar week (Mon–Sun) for the given offset — no hiatus logic. */
+function literalWeekBounds(offset: number, ctNow?: Date): WeekBounds {
   // Use CT (America/Chicago) local date so the week doesn't advance until
   // midnight CT — not midnight UTC (which is 6-7h earlier).
   const ctDateStr = (ctNow ?? new Date()).toLocaleDateString('en-CA', {
@@ -84,52 +87,21 @@ function weekRange(
   const sunday = new Date(monday)
   sunday.setDate(monday.getDate() + 6)
 
-  // Check if the requested week falls entirely within a hiatus window.
-  // A week is "in hiatus" when its Monday is inside the window.
-  const hiatus = getHiatus(monday)
-
-  if (hiatus) {
-    if (offset === 0) {
-      // "This Week" — show the hiatus message; return the actual calendar week
-      // dates so the label is accurate, but flag it as a hiatus.
-      const label =
-        monday.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        }) +
-        ' – ' +
-        sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      return {
-        from: toDateStr(monday),
-        to: toDateStr(sunday),
-        label,
-        hiatus: hiatus.message,
-      }
-    } else if (offset === -1) {
-      // "Last Week" — snap to the last week with MLS games before the hiatus
-      const snapMonday = hiatus.lastGameWeekMonday
-      const snapSunday = new Date(snapMonday)
-      snapSunday.setDate(snapMonday.getDate() + 6)
-      // Use fmtUTC to avoid timezone shift on ISO-string-constructed dates
-      const label = fmtUTC(snapMonday) + ' – ' + fmtUTC(snapSunday)
-      return { from: toDateStr(snapMonday), to: toDateStr(snapSunday), label }
-    } else {
-      // "Next Week" — snap to the first week with MLS games after the hiatus
-      const snapMonday = hiatus.nextGameWeekMonday
-      const snapSunday = new Date(snapMonday)
-      snapSunday.setDate(snapMonday.getDate() + 6)
-      // Use fmtUTC to avoid timezone shift on ISO-string-constructed dates
-      const label = fmtUTC(snapMonday) + ' – ' + fmtUTC(snapSunday)
-      return { from: toDateStr(snapMonday), to: toDateStr(snapSunday), label }
-    }
-  }
-
   const label =
     monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
     ' – ' +
     sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
-  return { from: toDateStr(monday), to: toDateStr(sunday), label }
+  return { from: toDateStr(monday), to: toDateStr(sunday), label, monday }
+}
+
+/** Bounds for the nearest MLS week with games, snapped from a hiatus window. */
+function snappedWeekBounds(monday: Date): WeekBounds {
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  // Use fmtUTC to avoid timezone shift on ISO-string-constructed dates
+  const label = fmtUTC(monday) + ' – ' + fmtUTC(sunday)
+  return { from: toDateStr(monday), to: toDateStr(sunday), label, monday }
 }
 
 // ── WC 2026 final winner cache ────────────────────────────────────────────────
@@ -221,97 +193,154 @@ interface CacheEntry {
 
 const cache = new Map<string, CacheEntry>()
 
-export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-
-  let from: string
-  let to: string
-  let label: string
-
-  if (query.date) {
-    from = to = query.date as string
-    label = query.date as string
-  } else if (query.from && query.to) {
-    from = query.from as string
-    to = query.to as string
-    label = `${from}–${to}`
-  } else {
-    const weekOffset =
-      query.week === 'last' ? -1 : query.week === 'next' ? 1 : 0
-    const range = weekRange(weekOffset)
-    from = range.from
-    to = range.to
-    label = range.label
-    if (range.hiatus) {
-      // This week is inside a hiatus — return immediately with the message.
-      // No need to hit ESPN since there are no MLS games this week.
-
-      // Special case: if today is on or after July 20 (day after WC final),
-      // try to show a congratulations message with the WC winner.
-      let hiatusMessage = range.hiatus
-      const ctDateStr = new Date().toLocaleDateString('en-CA', {
-        timeZone: 'America/Chicago',
-      })
-      const todayCT = new Date(ctDateStr)
-      if (
-        todayCT >= WC_FINAL_RESUME_DATE &&
-        range.hiatus.includes('World Cup')
-      ) {
-        const winner = await getWcWinner()
-        if (winner) {
-          hiatusMessage = `The World Cup is over! Congratulations ${winner}! The MLS continues! MLS play resumes July 22, 2026.`
-        }
-      }
-
-      return {
-        events: [],
-        _weekLabel: label,
-        _from: from,
-        _to: to,
-        _hiatus: hiatusMessage,
-      }
-    }
-  }
-
+/** Fetch a date range from ESPN (via cache when fresh), returning stale/error flags. */
+async function fetchRange(
+  from: string,
+  to: string,
+  bustCache: boolean
+): Promise<{
+  data: Record<string, unknown>
+  stale?: boolean
+  error?: boolean
+}> {
   const cacheKey = `${from}-${to}`
   const now = Date.now()
   const cached = cache.get(cacheKey)
 
-  // If the client sent a cache-buster (_t param), skip the server cache entirely
-  // so we always fetch fresh data from ESPN on force-refresh calls.
-  const bustCache = !!query._t
-
-  // Return cached data if still fresh.
-  // Use the short TTL only when the cached data contains live/HT events so we
-  // don't hammer ESPN during off-hours or between match days.
+  // Return cached data if still fresh, unless the client requested a bypass.
   if (!bustCache && cached) {
     const ttl = hasLiveEvents(cached.data)
       ? CACHE_TTL_LIVE_MS
       : CACHE_TTL_IDLE_MS
-    if (now - cached.fetchedAt < ttl) return cached.data
+    if (now - cached.fetchedAt < ttl) return { data: cached.data }
   }
 
   const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?dates=${from}-${to}`
 
   try {
     const data = await $fetch<Record<string, unknown>>(url)
-    const result = { ...data, _weekLabel: label, _from: from, _to: to }
-    cache.set(cacheKey, { data: result, fetchedAt: now })
-    return result
-  } catch (err: unknown) {
+    cache.set(cacheKey, { data, fetchedAt: now })
+    return { data }
+  } catch {
     // On ESPN failure: return stale cache if available (silent degradation)
-    if (cached) {
-      return { ...cached.data, _stale: true }
-    }
-    // No cache at all — return empty scoreboard shape so UI shows "no matches"
-    // instead of a red error screen
+    if (cached) return { data: cached.data, stale: true }
+    // No cache at all — empty scoreboard shape so UI shows "no matches"
+    return { data: { events: [] }, stale: true, error: true }
+  }
+}
+
+function eventCount(data: Record<string, unknown>): number {
+  return ((data.events as Array<unknown>) ?? []).length
+}
+
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event)
+  const bustCache = !!query._t
+
+  if (query.date) {
+    const from = query.date as string
+    const to = query.date as string
+    const result = await fetchRange(from, to, bustCache)
     return {
-      events: [],
-      _weekLabel: label,
+      ...result.data,
+      _weekLabel: from,
       _from: from,
       _to: to,
-      _stale: true,
-      _error: true,
+      ...(result.stale ? { _stale: true } : {}),
+      ...(result.error ? { _error: true } : {}),
     }
+  }
+
+  if (query.from && query.to) {
+    const from = query.from as string
+    const to = query.to as string
+    const result = await fetchRange(from, to, bustCache)
+    return {
+      ...result.data,
+      _weekLabel: `${from}–${to}`,
+      _from: from,
+      _to: to,
+      ...(result.stale ? { _stale: true } : {}),
+      ...(result.error ? { _error: true } : {}),
+    }
+  }
+
+  const weekOffset = query.week === 'last' ? -1 : query.week === 'next' ? 1 : 0
+  const literal = literalWeekBounds(weekOffset)
+
+  // Always check ESPN for the literal calendar week first — MLS occasionally
+  // schedules games inside a "hiatus" window (e.g. a short return before the
+  // official resumption date), and we must never hide real games behind a
+  // hardcoded hiatus message.
+  const primary = await fetchRange(literal.from, literal.to, bustCache)
+
+  if (eventCount(primary.data) > 0) {
+    return {
+      ...primary.data,
+      _weekLabel: literal.label,
+      _from: literal.from,
+      _to: literal.to,
+      ...(primary.stale ? { _stale: true } : {}),
+      ...(primary.error ? { _error: true } : {}),
+    }
+  }
+
+  // No games found in the literal calendar week — check whether this falls
+  // inside a known hiatus window.
+  const hiatus = getHiatus(literal.monday)
+
+  if (!hiatus) {
+    // Genuinely no MLS games this week (bye week, etc.) — plain empty result.
+    return {
+      events: [],
+      _weekLabel: literal.label,
+      _from: literal.from,
+      _to: literal.to,
+      ...(primary.stale ? { _stale: true } : {}),
+      ...(primary.error ? { _error: true } : {}),
+    }
+  }
+
+  if (weekOffset === 0) {
+    // "This Week" — no real games this week and we're in a hiatus window.
+    // Show the hiatus message; return the actual calendar week dates so the
+    // label is accurate.
+    let hiatusMessage = hiatus.message
+    const ctDateStr = new Date().toLocaleDateString('en-CA', {
+      timeZone: 'America/Chicago',
+    })
+    const todayCT = new Date(ctDateStr)
+    if (
+      todayCT >= WC_FINAL_RESUME_DATE &&
+      hiatus.message.includes('World Cup')
+    ) {
+      const winner = await getWcWinner()
+      if (winner) {
+        hiatusMessage = `The World Cup is over! Congratulations ${winner}! The MLS continues! MLS play resumes July 22, 2026.`
+      }
+    }
+
+    return {
+      events: [],
+      _weekLabel: literal.label,
+      _from: literal.from,
+      _to: literal.to,
+      _hiatus: hiatusMessage,
+    }
+  }
+
+  // "Last Week" / "Next Week" — snap to the nearest MLS week with games.
+  const snapMonday =
+    weekOffset === -1 ? hiatus.lastGameWeekMonday : hiatus.nextGameWeekMonday
+  const snapped = snappedWeekBounds(snapMonday)
+  const snapResult = await fetchRange(snapped.from, snapped.to, bustCache)
+
+  return {
+    ...snapResult.data,
+    _weekLabel: snapped.label,
+    _from: snapped.from,
+    _to: snapped.to,
+    ...(snapResult.stale ? { _stale: true } : {}),
+    ...(snapResult.error ? { _error: true } : {}),
   }
 })

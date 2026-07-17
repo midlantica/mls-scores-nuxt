@@ -605,6 +605,25 @@
       })
   })
 
+  // ── Season progress: total/played/remaining + season-end date ────────────
+  const totalGames = computed(() => scheduleEvents.value.length)
+  const gamesPlayed = computed(
+    () => scheduleEvents.value.filter((e) => e.statusCode === 'ft').length
+  )
+  const gamesRemaining = computed(() =>
+    Math.max(totalGames.value - gamesPlayed.value, 0)
+  )
+  const seasonEndDate = computed(() => {
+    if (!scheduleEvents.value.length) return null
+    const last = scheduleEvents.value.at(-1)
+    if (!last) return null
+    return new Date(last.date).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  })
+
   // ── Header info ───────────────────────────────────────────────────────────
   const displayName = computed(() =>
     displayTeam.value
@@ -716,9 +735,14 @@
                   :next-game="nextGame"
                   :past-matches="pastMatches"
                   :has-fixtures="scheduleEvents.length > 0"
+                  :total-games="totalGames"
+                  :games-played="gamesPlayed"
+                  :games-remaining="gamesRemaining"
+                  :season-end-date="seasonEndDate"
                   @open-game-detail="emit('open-game-detail', $event)"
                   @navigate-fixtures="setTab('fixtures')"
                 />
+
                 <MyTeamLeadersTab
                   v-else-if="activeTab === 'leaders'"
                   :loading="teamDetailLoading"
@@ -741,6 +765,10 @@
                   :error="scheduleError"
                   :fixtures-by-month="fixturesByMonth"
                   :display-team="displayTeam ?? ''"
+                  :total-games="totalGames"
+                  :games-played="gamesPlayed"
+                  :games-remaining="gamesRemaining"
+                  :season-end-date="seasonEndDate"
                   @select-team="emit('select-team', $event)"
                 />
               </div>

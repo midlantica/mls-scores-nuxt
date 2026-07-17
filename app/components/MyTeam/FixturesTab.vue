@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import { TEAM_LOGO } from '~/composables/useMyTeam'
   import { useTimezone } from '~/composables/useTimezone'
-  import { POST_WC_NOTICE_TITLE, POST_WC_NOTICE_MESSAGE } from '~/constants/mls'
 
   interface FixtureEvent {
     id: string
@@ -24,6 +23,10 @@
     error: string | null
     fixturesByMonth: FixtureMonth[]
     displayTeam: string
+    totalGames: number
+    gamesPlayed: number
+    gamesRemaining: number
+    seasonEndDate: string | null
   }>()
 
   const emit = defineEmits<{
@@ -100,14 +103,14 @@
   </div>
   <div v-else-if="error" class="tab-empty">{{ error }}</div>
   <div v-else-if="fixturesByMonth.length" class="fixtures-wrap">
-    <template v-for="(month, mi) in fixturesByMonth" :key="month.key">
-      <HiatusBanner
-        v-if="
-          mi > 0 &&
-          (fixturesByMonth[mi - 1]?.key ?? '') < '2026-07' &&
-          month.key >= '2026-07'
-        "
-      />
+    <p v-if="totalGames > 0" class="season-progress">
+      {{ gamesPlayed }} of {{ totalGames }} games played ·
+      {{ gamesRemaining }} remaining<template v-if="seasonEndDate">
+        · Season ends {{ seasonEndDate }}</template
+      >
+    </p>
+
+    <template v-for="month in fixturesByMonth" :key="month.key">
       <div class="fixtures-month">
         <div class="fixtures-month-label">{{ month.label }}</div>
         <div class="fixtures-table">
@@ -182,12 +185,6 @@
         </div>
       </div>
     </template>
-
-    <HiatusBanner
-      :show-icon="false"
-      :title="POST_WC_NOTICE_TITLE"
-      :message="POST_WC_NOTICE_MESSAGE"
-    />
   </div>
 
   <div v-else class="tab-empty">No fixtures available.</div>
@@ -232,6 +229,16 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .season-progress {
+    font-family: var(--font-condensed);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: oklab(100% 0 0 / 0.5);
+    text-align: center;
+    padding-bottom: 0.25rem;
   }
 
   .fixtures-month {
