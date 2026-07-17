@@ -78,15 +78,22 @@ export function calcQuality(homeRec: string, awayRec: string): number {
 }
 
 /**
- * Determine the badge tier for a match:
+ * Determine the badge tier for a match.
  *
- * 🔥 "fire"  — Both teams have winning records (W > L) AND are closely matched
- *              (within 5 pts of each other). These are the genuine top clashes.
+ * Closeness is measured in points-per-game (W=3, D=1) rather than raw points,
+ * so teams with games in hand aren't unfairly penalized.
  *
- * 🤞 "wild"  — Selective underdog/derby interest:
- *   • A known derby where both teams are within 6 pts of each other, OR
+ * 🔥 "fire"  — The week's genuine top clashes:
+ *   • Both teams have winning records (W > L), both have played ≥5 games,
+ *     AND they're closely matched (within 0.5 pts/game of each other), OR
+ *   • A known derby where both teams have winning records (≥5 games each) —
+ *     a rivalry with real title-race stakes.
+ *
+ * 🎲 "wild"  — Selective underdog/derby interest:
+ *   • A known derby where the rivals are closely matched (within 0.75
+ *     pts/game of each other), OR
  *   • Both teams are evenly humble (neither has a winning record, both have
- *     played ≥6 games, within 3 pts of each other) — a true fight-to-the-death.
+ *     played ≥6 games, within 0.35 pts/game) — a true fight-to-the-death.
  *   NOT every mediocre game — must meet the criteria above.
  *
  * null — everything else
@@ -100,24 +107,29 @@ export function calcBadge(
   if (homeRec === '–' || awayRec === '–') return null
   const h = parseRec(homeRec)
   const a = parseRec(awayRec)
-  const hPts = h.w * 3 + h.d
-  const aPts = a.w * 3 + a.d
-  const ptDiff = Math.abs(hPts - aPts)
   const hGames = h.w + h.l + h.d
   const aGames = a.w + a.l + a.d
+  const hPpg = hGames > 0 ? (h.w * 3 + h.d) / hGames : 0
+  const aPpg = aGames > 0 ? (a.w * 3 + a.d) / aGames : 0
+  const ppgDiff = Math.abs(hPpg - aPpg)
   const hWinning = h.w > h.l
   const aWinning = a.w > a.l
+  const enoughGames = hGames >= 5 && aGames >= 5
+  const derby = isDerby(home, away)
 
-  // 🔥 Both winning records + closely matched
-  if (hWinning && aWinning && ptDiff <= 5) return 'fire'
+  // 🔥 Both winning records + closely matched (min games guards early-season noise)
+  if (hWinning && aWinning && enoughGames && ppgDiff <= 0.5) return 'fire'
 
-  // 🤞 Derby with close points
-  if (isDerby(home, away) && ptDiff <= 6) return 'wild'
+  // 🔥 Derby where both rivals are winning — stakes on top of the grudge
+  if (derby && hWinning && aWinning && enoughGames) return 'fire'
 
-  // 🤞 Both evenly humble (not winning records), enough games played, very close
+  // 🎲 Derby with closely matched rivals
+  if (derby && ppgDiff <= 0.75) return 'wild'
+
+  // 🎲 Both evenly humble (not winning records), enough games played, very close
   const hHumble = !hWinning && hGames >= 6
   const aHumble = !aWinning && aGames >= 6
-  if (hHumble && aHumble && ptDiff <= 3) return 'wild'
+  if (hHumble && aHumble && ppgDiff <= 0.35) return 'wild'
 
   return null
 }
