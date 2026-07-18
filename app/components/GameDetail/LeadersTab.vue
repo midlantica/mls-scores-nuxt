@@ -27,7 +27,12 @@
   <div v-if="homeLeaders || awayLeaders" class="leaders-table">
     <div class="leaders-head">
       <div class="leaders-th leaders-th-home">
-        <img v-if="homeLogo" :src="homeLogo" :alt="homeTeam" class="head-logo" />
+        <img
+          v-if="homeLogo"
+          :src="homeLogo"
+          :alt="homeTeam"
+          class="head-logo"
+        />
         <span>
           <span class="name-short">{{ homeAbbr }}</span>
           <span class="name-abbrev">{{ homeTeamAbbrev }}</span>
@@ -35,7 +40,12 @@
       </div>
       <div class="leaders-th-center"></div>
       <div class="leaders-th leaders-th-away">
-        <img v-if="awayLogo" :src="awayLogo" :alt="awayTeam" class="head-logo" />
+        <img
+          v-if="awayLogo"
+          :src="awayLogo"
+          :alt="awayTeam"
+          class="head-logo"
+        />
         <span>
           <span class="name-short">{{ awayAbbr }}</span>
           <span class="name-abbrev">{{ awayTeamAbbrev }}</span>
@@ -43,26 +53,40 @@
       </div>
     </div>
     <template
-      v-for="(cat, idx) in (homeLeaders?.categories ?? awayLeaders?.categories ?? []).filter(
-        (c) => LEADER_LABELS[c.name]
-      )"
+      v-for="(cat, idx) in (
+        homeLeaders?.categories ??
+        awayLeaders?.categories ??
+        []
+      ).filter((c) => LEADER_LABELS[c.name])"
       :key="cat.name"
     >
       <div class="leaders-row" :class="{ 'row-stripe': idx % 2 === 1 }">
         <div class="leaders-name leaders-name-home">
-          {{ homeLeaders?.categories.find((c) => c.name === cat.name)?.athlete ?? '–' }}
+          {{
+            homeLeaders?.categories.find((c) => c.name === cat.name)?.athlete ??
+            '–'
+          }}
         </div>
         <div class="leaders-val leaders-val-home">
-          {{ homeLeaders?.categories.find((c) => c.name === cat.name)?.value ?? '–' }}
+          {{
+            homeLeaders?.categories.find((c) => c.name === cat.name)?.value ??
+            '–'
+          }}
         </div>
         <div class="leaders-cat-col">
           {{ LEADER_LABELS[cat.name] ?? cat.shortDisplayName }}
         </div>
         <div class="leaders-val leaders-val-away">
-          {{ awayLeaders?.categories.find((c) => c.name === cat.name)?.value ?? '–' }}
+          {{
+            awayLeaders?.categories.find((c) => c.name === cat.name)?.value ??
+            '–'
+          }}
         </div>
         <div class="leaders-name leaders-name-away">
-          {{ awayLeaders?.categories.find((c) => c.name === cat.name)?.athlete ?? '–' }}
+          {{
+            awayLeaders?.categories.find((c) => c.name === cat.name)?.athlete ??
+            '–'
+          }}
         </div>
       </div>
     </template>

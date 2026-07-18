@@ -173,8 +173,7 @@ function toKickoffSlot(iso: string): number {
 
 function parseRecord(competitor: Record<string, unknown>): string {
   const records = competitor.records as
-    | Array<Record<string, unknown>>
-    | undefined
+    Array<Record<string, unknown>> | undefined
   const rec = records?.find(
     (r) => r.type === 'total' || r.abbreviation === 'Total'
   )

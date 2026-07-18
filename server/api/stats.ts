@@ -166,9 +166,7 @@ export default defineEventHandler(async () => {
         const data = await $fetch<Record<string, unknown>>(baseUrl)
         const displayName = (data.displayName as string) ?? 'Unknown'
         const headshotObj = data.headshot as
-          | Record<string, unknown>
-          | null
-          | undefined
+          Record<string, unknown> | null | undefined
         let headshot = (headshotObj?.href as string) ?? ''
 
         // If ESPN has no headshot, try Wikipedia

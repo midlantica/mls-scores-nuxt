@@ -44,7 +44,9 @@
         :class="{ 'row-stripe': pi % 2 === 1 }"
       >
         <div class="squads-num">{{ player.jersey }}</div>
-        <div class="squads-pos"><span class="pos-badge">{{ player.position }}</span></div>
+        <div class="squads-pos">
+          <span class="pos-badge">{{ player.position }}</span>
+        </div>
         <div class="squads-name">{{ player.displayName }}</div>
         <div class="squads-nat">{{ player.nationality }}</div>
       </div>
@@ -65,12 +67,16 @@
           :class="{ 'row-stripe': pi % 2 === 1 }"
         >
           <div class="squads-num">{{ player.jersey }}</div>
-          <div class="squads-pos"><span class="pos-badge">{{ player.position }}</span></div>
+          <div class="squads-pos">
+            <span class="pos-badge">{{ player.position }}</span>
+          </div>
           <div class="squads-name">{{ player.displayName }}</div>
         </div>
       </div>
     </div>
-    <p class="squads-fallback-note">*last lineup from {{ fallbackSquadDateLabel }}</p>
+    <p class="squads-fallback-note">
+      *last lineup from {{ fallbackSquadDateLabel }}
+    </p>
   </div>
   <div v-else class="tab-empty">Lineup not yet available.</div>
 </template>
@@ -90,8 +96,13 @@
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
   }
 
   .tab-empty {

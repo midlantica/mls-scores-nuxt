@@ -68,8 +68,7 @@ export function useStandings() {
                 overall:
                   ((
                     stats.find((s) => s.name === 'overall') as
-                      | Record<string, unknown>
-                      | undefined
+                      Record<string, unknown> | undefined
                   )?.summary as string) ?? '',
               }
             })

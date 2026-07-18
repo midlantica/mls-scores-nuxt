@@ -57,13 +57,23 @@
   <div v-if="detail.teamStats.length >= 2" class="stats-table">
     <div class="stats-head">
       <div class="stats-th stats-th-home">
-        <img v-if="homeLogo" :src="homeLogo" :alt="homeTeam" class="head-logo" />
+        <img
+          v-if="homeLogo"
+          :src="homeLogo"
+          :alt="homeTeam"
+          class="head-logo"
+        />
         <span class="name-short">{{ homeAbbr }}</span>
         <span class="name-abbrev">{{ homeTeamAbbrev }}</span>
       </div>
       <div class="stats-th-center"></div>
       <div class="stats-th stats-th-away">
-        <img v-if="awayLogo" :src="awayLogo" :alt="awayTeam" class="head-logo" />
+        <img
+          v-if="awayLogo"
+          :src="awayLogo"
+          :alt="awayTeam"
+          class="head-logo"
+        />
         <span class="name-short">{{ awayAbbr }}</span>
         <span class="name-abbrev">{{ awayTeamAbbrev }}</span>
       </div>
@@ -79,10 +89,14 @@
                 ? 'stats-num-hi'
                 : '',
             ]"
-            >{{ getStatDisplay(detail.teamStats[0]?.teamId ?? '', statName) }}</span
+            >{{
+              getStatDisplay(detail.teamStats[0]?.teamId ?? '', statName)
+            }}</span
           >
         </div>
-        <div class="stats-label-col">{{ STAT_LABELS[statName] ?? statName }}</div>
+        <div class="stats-label-col">
+          {{ STAT_LABELS[statName] ?? statName }}
+        </div>
         <div class="stats-val-cell stats-val-away">
           <span
             :class="[
@@ -92,7 +106,9 @@
                 ? 'stats-num-hi'
                 : '',
             ]"
-            >{{ getStatDisplay(detail.teamStats[1]?.teamId ?? '', statName) }}</span
+            >{{
+              getStatDisplay(detail.teamStats[1]?.teamId ?? '', statName)
+            }}</span
           >
         </div>
       </div>

@@ -18,8 +18,15 @@
   function h2hDate(dateStr: string): { weekday: string; date: string } {
     const d = new Date(dateStr)
     return {
-      weekday: d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
-      date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }),
+      weekday: d.toLocaleDateString('en-US', {
+        weekday: 'short',
+        timeZone: 'UTC',
+      }),
+      date: d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC',
+      }),
     }
   }
 
@@ -32,7 +39,10 @@
     return 'h2h-draw'
   }
 
-  function h2hScores(scoreStr: string, atVs: string): { left: string; right: string } {
+  function h2hScores(
+    scoreStr: string,
+    atVs: string
+  ): { left: string; right: string } {
     const parts = scoreStr?.split('-') ?? []
     const gameHome = parts[0]?.trim() ?? '–'
     const gameAway = parts[1]?.trim() ?? '–'
@@ -51,13 +61,17 @@
         :class="{ 'row-stripe': gi % 2 === 1 }"
       >
         <div class="h2h-fx-date">
-          <span class="h2h-fx-date-weekday">{{ h2hDate(game.date).weekday }}</span>
+          <span class="h2h-fx-date-weekday">{{
+            h2hDate(game.date).weekday
+          }}</span>
           <span class="h2h-fx-date-md">{{ h2hDate(game.date).date }}</span>
         </div>
         <div class="h2h-fx-home">
           <button
             class="h2h-fx-team-btn"
-            @click.stop="emit('select-team', game.atVs === 'vs' ? homeTeam : awayTeam)"
+            @click.stop="
+              emit('select-team', game.atVs === 'vs' ? homeTeam : awayTeam)
+            "
           >
             <span
               class="h2h-fx-team h2h-fx-team-full"
@@ -121,7 +135,9 @@
           />
           <button
             class="h2h-fx-team-btn"
-            @click.stop="emit('select-team', game.atVs === 'vs' ? awayTeam : homeTeam)"
+            @click.stop="
+              emit('select-team', game.atVs === 'vs' ? awayTeam : homeTeam)
+            "
           >
             <span
               class="h2h-fx-team h2h-fx-team-full"
@@ -176,8 +192,13 @@
   }
 
   @keyframes skeleton-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
   }
 
   .h2h-fixtures-wrap {
@@ -337,9 +358,15 @@
     font-weight: 100;
   }
 
-  .h2h-win { color: oklab(100% 0 0); }
-  .h2h-loss { color: oklab(100% 0 0 / 0.45); }
-  .h2h-draw { color: oklab(100% 0 0 / 0.45); }
+  .h2h-win {
+    color: oklab(100% 0 0);
+  }
+  .h2h-loss {
+    color: oklab(100% 0 0 / 0.45);
+  }
+  .h2h-draw {
+    color: oklab(100% 0 0 / 0.45);
+  }
 
   .no-data {
     font-size: var(--modal-copy-size);

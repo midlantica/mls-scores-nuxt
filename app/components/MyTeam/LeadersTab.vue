@@ -36,7 +36,11 @@
   </div>
   <div v-else-if="error" class="tab-empty">{{ error }}</div>
   <div v-else-if="sortedLeaders.length" class="leaders-wrap">
-    <div v-for="(cat, ci) in sortedLeaders" :key="cat.name" class="leaders-category">
+    <div
+      v-for="(cat, ci) in sortedLeaders"
+      :key="cat.name"
+      class="leaders-category"
+    >
       <div class="leaders-cat-title">
         {{ STAT_DISPLAY[cat.name] ?? cat.displayName }}
       </div>
@@ -73,8 +77,13 @@
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
   }
 
   .tab-empty {
@@ -106,7 +115,11 @@
     font-weight: 400;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: color-mix(in oklab, var(--color-theme-300, oklab(100% 0 0)) 80%, white 20%);
+    color: color-mix(
+      in oklab,
+      var(--color-theme-300, oklab(100% 0 0)) 80%,
+      white 20%
+    );
     padding-bottom: 0.25rem;
     border-bottom: 1px solid oklab(100% 0 0 / 0.08);
   }

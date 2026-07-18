@@ -16,10 +16,22 @@
   }>()
 
   const POS_ORDER: Record<string, number> = {
-    G: 0, GK: 0,
-    D: 1, CB: 1, LB: 1, RB: 1, WB: 1,
-    M: 2, CM: 2, DM: 2, AM: 2,
-    F: 3, FW: 3, LW: 3, RW: 3, ST: 3,
+    G: 0,
+    GK: 0,
+    D: 1,
+    CB: 1,
+    LB: 1,
+    RB: 1,
+    WB: 1,
+    M: 2,
+    CM: 2,
+    DM: 2,
+    AM: 2,
+    F: 3,
+    FW: 3,
+    LW: 3,
+    RW: 3,
+    ST: 3,
   }
 
   function sortedPlayers(roster: TeamRoster | null): RosterPlayer[] {
@@ -28,7 +40,10 @@
       const ao = POS_ORDER[a.position] ?? 9
       const bo = POS_ORDER[b.position] ?? 9
       if (ao !== bo) return ao - bo
-      return (a.jersey ? parseInt(a.jersey) : 99) - (b.jersey ? parseInt(b.jersey) : 99)
+      return (
+        (a.jersey ? parseInt(a.jersey) : 99) -
+        (b.jersey ? parseInt(b.jersey) : 99)
+      )
     })
   }
 </script>
@@ -37,7 +52,12 @@
   <div class="squads-table">
     <div class="squads-head">
       <div class="squads-th squads-th-home">
-        <img v-if="homeLogo" :src="homeLogo" :alt="homeTeam" class="squads-th-logo" />
+        <img
+          v-if="homeLogo"
+          :src="homeLogo"
+          :alt="homeTeam"
+          class="squads-th-logo"
+        />
         <span>
           <span class="name-short">{{ homeAbbr }}</span>
           <span class="name-abbrev">{{ homeTeamAbbrev }}</span>
@@ -45,7 +65,12 @@
       </div>
       <div class="squads-th-center"></div>
       <div class="squads-th squads-th-away">
-        <img v-if="awayLogo" :src="awayLogo" :alt="awayTeam" class="squads-th-logo" />
+        <img
+          v-if="awayLogo"
+          :src="awayLogo"
+          :alt="awayTeam"
+          class="squads-th-logo"
+        />
         <span>
           <span class="name-short">{{ awayAbbr }}</span>
           <span class="name-abbrev">{{ awayTeamAbbrev }}</span>
@@ -54,18 +79,26 @@
     </div>
     <template
       v-for="(_, rowIdx) in Array(
-        Math.max(sortedPlayers(homeRoster).length, sortedPlayers(awayRoster).length)
+        Math.max(
+          sortedPlayers(homeRoster).length,
+          sortedPlayers(awayRoster).length
+        )
       )"
       :key="rowIdx"
     >
       <div class="squads-row" :class="{ 'row-stripe': rowIdx % 2 === 1 }">
         <div class="squads-player squads-player-home">
           <span
-            v-if="statusCode !== 'ns' && sortedPlayers(homeRoster)[rowIdx]?.subbedIn"
+            v-if="
+              statusCode !== 'ns' && sortedPlayers(homeRoster)[rowIdx]?.subbedIn
+            "
             class="sub-icon sub-in"
           />
           <span
-            v-if="statusCode !== 'ns' && sortedPlayers(homeRoster)[rowIdx]?.subbedOut"
+            v-if="
+              statusCode !== 'ns' &&
+              sortedPlayers(homeRoster)[rowIdx]?.subbedOut
+            "
             class="sub-icon sub-out"
           />
           <span v-if="sortedPlayers(homeRoster)[rowIdx]" class="squad-jersey">
@@ -77,7 +110,10 @@
         </div>
         <div class="squads-pos-col">
           <span
-            v-if="sortedPlayers(homeRoster)[rowIdx] || sortedPlayers(awayRoster)[rowIdx]"
+            v-if="
+              sortedPlayers(homeRoster)[rowIdx] ||
+              sortedPlayers(awayRoster)[rowIdx]
+            "
             class="squad-pos"
           >
             {{
@@ -95,18 +131,25 @@
             {{ sortedPlayers(awayRoster)[rowIdx]?.jersey ?? '–' }}
           </span>
           <span
-            v-if="statusCode !== 'ns' && sortedPlayers(awayRoster)[rowIdx]?.subbedIn"
+            v-if="
+              statusCode !== 'ns' && sortedPlayers(awayRoster)[rowIdx]?.subbedIn
+            "
             class="sub-icon sub-in"
           />
           <span
-            v-if="statusCode !== 'ns' && sortedPlayers(awayRoster)[rowIdx]?.subbedOut"
+            v-if="
+              statusCode !== 'ns' &&
+              sortedPlayers(awayRoster)[rowIdx]?.subbedOut
+            "
             class="sub-icon sub-out"
           />
         </div>
       </div>
     </template>
     <div
-      v-if="!sortedPlayers(homeRoster).length && !sortedPlayers(awayRoster).length"
+      v-if="
+        !sortedPlayers(homeRoster).length && !sortedPlayers(awayRoster).length
+      "
       class="no-data"
     >
       Lineups not yet available

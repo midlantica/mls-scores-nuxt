@@ -214,9 +214,7 @@ export default defineEventHandler(async (event) => {
         try {
           const data = await $fetch<Record<string, unknown>>(baseUrl)
           const headshotObj = data.headshot as
-            | Record<string, unknown>
-            | null
-            | undefined
+            Record<string, unknown> | null | undefined
           athleteCache.set(ref, {
             athleteId,
             displayName: (data.displayName as string) ?? 'Unknown',

@@ -66,8 +66,7 @@ export default defineEventHandler(async (event) => {
         color: t?.color as string | undefined,
         alternateColor: t?.alternateColor as string | undefined,
         logo: (t?.logos as Array<Record<string, unknown>>)?.[0]?.href as
-          | string
-          | undefined,
+          string | undefined,
       }
     })
 
@@ -95,36 +94,28 @@ export default defineEventHandler(async (event) => {
     const drawOdds = odds0.drawOdds as Record<string, unknown> | undefined
     const bettingOdds = odds0.bettingOdds as Record<string, unknown> | undefined
     const teamOdds = bettingOdds?.teamOdds as
-      | Record<string, unknown>
-      | undefined
+      Record<string, unknown> | undefined
 
     const odds = {
       provider: (odds0.provider as Record<string, unknown>)?.name as
-        | string
-        | undefined,
+        string | undefined,
       home: {
         summary: (homeOdds?.odds as Record<string, unknown>)?.summary as
-          | string
-          | undefined,
+          string | undefined,
         moneyLine: (homeOdds?.odds as Record<string, unknown>)?.value as
-          | number
-          | undefined,
+          number | undefined,
       },
       away: {
         summary: (awayOdds?.odds as Record<string, unknown>)?.summary as
-          | string
-          | undefined,
+          string | undefined,
         moneyLine: (awayOdds?.odds as Record<string, unknown>)?.value as
-          | number
-          | undefined,
+          number | undefined,
       },
       draw: {
         summary: (drawOdds as Record<string, unknown>)?.summary as
-          | string
-          | undefined,
+          string | undefined,
         moneyLine: (drawOdds as Record<string, unknown>)?.moneyLine as
-          | number
-          | undefined,
+          number | undefined,
       },
       // Pre-match full-time result odds (fractional)
       preMatchHome: (
@@ -198,8 +189,7 @@ export default defineEventHandler(async (event) => {
       const participants =
         (ke.participants as Array<Record<string, unknown>>) ?? []
       const ath = participants[0]?.athlete as
-        | Record<string, unknown>
-        | undefined
+        Record<string, unknown> | undefined
       const athleteName = (ath?.displayName as string | undefined) ?? ''
       // Use last name only (last word of display name)
       const lastName = athleteName.split(' ').pop() ?? athleteName
