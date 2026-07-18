@@ -287,7 +287,7 @@
 
   // ── Auto-poll every 30 s when live matches are on screen ──────────────────────
   watch(lastUpdated, (val) => {
-    if (val) console.log(`[MLS Scores] Updated ${val}`)
+    if (val) console.log(`[MLS Fire] Updated ${val}`)
   })
 
   // Poll when there are live/HT matches, OR when there are "not started" matches

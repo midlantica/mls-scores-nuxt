@@ -22,9 +22,8 @@
         class="mls-logo"
         :class="{ 'mls-logo--themed': !!selectedTeam }"
       />
-      <div>
-        <h1 class="site-title">MLS Scores</h1>
-      </div>
+      <h1 class="site-title">MLS Fire</h1>
+      <img src="/mlsfire-ball.svg" alt="" class="fire-ball" />
     </div>
 
     <div class="header-right">
@@ -45,7 +44,7 @@
 
   .header-left {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 0.5rem;
     user-select: none;
     min-width: 0;
@@ -55,7 +54,7 @@
   }
 
   .mls-logo {
-    width: 1.9rem;
+    width: 1.6rem;
     height: auto;
     flex-shrink: 0;
     color: var(--color-theme-300);
@@ -71,12 +70,17 @@
     user-select: none;
     transition: color 0.15s;
     line-height: normal;
-    position: relative;
-    top: -0.2rem;
   }
 
   .header-left:hover .site-title {
     color: var(--color-theme-200);
+  }
+
+  .fire-ball {
+    width: 2.1rem;
+    height: auto;
+    flex-shrink: 0;
+    margin-left: -0.15rem;
   }
 
   @media (max-width: 420px) {
@@ -90,6 +94,9 @@
     }
     .site-title {
       font-size: 1.25rem;
+    }
+    .fire-ball {
+      width: 1.5rem;
     }
   }
 

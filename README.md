@@ -1,8 +1,8 @@
-# ⚽ MLS Live Scores
+# ⚽ MLS Fire
 
-A fast, clean MLS scores app built with **Nuxt 4** and deployed on **Netlify**. Live scores, standings, stats, team schedules, rosters, and head-to-head history — all in one place.
+A fast, clean MLS Fire app built with **Nuxt 4** and deployed on **Netlify**. Live scores, standings, stats, team schedules, rosters, and head-to-head history — all in one place.
 
-🔗 **Live:** [mlsscores.netlify.app](https://mlsscores.netlify.app)
+🔗 **Live:** [mlsfire.net](https://mlsfire.net)
 
 ---
 

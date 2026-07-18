@@ -39,7 +39,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'MLS Live Scores',
+      title: 'MLS Fire — Live Scores',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {
@@ -51,12 +51,12 @@ export default defineNuxtConfig({
         { property: 'og:type', content: 'website', tagPriority: 'critical' },
         {
           property: 'og:url',
-          content: 'https://mlsscores.netlify.app/',
+          content: 'https://mlsfire.net/',
           tagPriority: 'critical',
         },
         {
           property: 'og:title',
-          content: 'MLS Live Scores',
+          content: 'MLS Fire — Live Scores',
           tagPriority: 'critical',
         },
         {
@@ -67,7 +67,7 @@ export default defineNuxtConfig({
         },
         {
           property: 'og:image',
-          content: 'https://mlsscores.netlify.app/og-image.png?v=4',
+          content: 'https://mlsfire.net/og-image.png?v=4',
           tagPriority: 'critical',
         },
         {
@@ -87,7 +87,7 @@ export default defineNuxtConfig({
         },
         {
           property: 'og:site_name',
-          content: 'MLS Scores',
+          content: 'MLS Fire',
           tagPriority: 'critical',
         },
         // Twitter / X Card
@@ -98,7 +98,7 @@ export default defineNuxtConfig({
         },
         {
           name: 'twitter:title',
-          content: 'MLS Live Scores',
+          content: 'MLS Fire — Live Scores',
           tagPriority: 'critical',
         },
         {
@@ -109,7 +109,7 @@ export default defineNuxtConfig({
         },
         {
           name: 'twitter:image',
-          content: 'https://mlsscores.netlify.app/og-image.png?v=4',
+          content: 'https://mlsfire.net/og-image.png?v=4',
           tagPriority: 'critical',
         },
       ],
@@ -120,5 +120,9 @@ export default defineNuxtConfig({
         },
       ],
     },
+  },
+
+  devtools: {
+    enabled: true,
   },
 })
