@@ -617,9 +617,10 @@
 
   .main-tab {
     font-family: var(--font-condensed);
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 300;
     letter-spacing: 0.06em;
+    text-transform: uppercase;
     padding: 0.4rem 0.5rem;
     color: var(--color-text-secondary);
     background: transparent;

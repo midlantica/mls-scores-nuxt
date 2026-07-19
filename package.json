@@ -15,13 +15,13 @@
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
     "culori": "^4.0.2",
-    "nuxt": "^4.4.6",
+    "nuxt": "^4.5.0",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@types/culori": "^4.0.1",
     "prettier": "^3.9.5",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }

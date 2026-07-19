@@ -7,6 +7,11 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
+  experimental: {
+    watcher: 'builder',
+    prefetchPreloadTags: true,
+  },
+
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
