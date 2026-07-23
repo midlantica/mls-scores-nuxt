@@ -91,6 +91,7 @@ export interface MatchEvent {
   clock: string
   isOG?: boolean
   isPenalty?: boolean
+  isSecondYellow?: boolean
 }
 
 export interface MatchDetail {

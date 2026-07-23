@@ -363,21 +363,42 @@
     clocks: string[]
     isOG?: boolean
     isPenalty?: boolean
+    isSecondYellow?: boolean
+    isMergedDouble?: boolean
   }
 
   function groupEvents(events: MatchEvent[]): GroupedEvent[] {
     const result: GroupedEvent[] = []
     for (const ev of events) {
+      // A second-yellow red merges into that same player's existing yellow
+      // group (one combined line, one double-card icon) — a straight red
+      // (no prior yellow to merge with) stays as its own separate item.
+      if (ev.type === 'red' && ev.isSecondYellow) {
+        const priorYellow = result.find(
+          (g) =>
+            g.type === 'yellow' &&
+            g.lastName === ev.lastName &&
+            !g.isMergedDouble
+        )
+        if (priorYellow) {
+          priorYellow.clocks.push(ev.clock)
+          priorYellow.isSecondYellow = true
+          priorYellow.isMergedDouble = true
+          continue
+        }
+      }
       const existing = result.find(
         (g) =>
           g.type === ev.type &&
           g.lastName === ev.lastName &&
-          !!g.isOG === !!ev.isOG
+          !!g.isOG === !!ev.isOG &&
+          !g.isMergedDouble
       )
       if (existing) {
         existing.clocks.push(ev.clock)
         // If any occurrence is a penalty, mark the group
         if (ev.isPenalty) existing.isPenalty = true
+        if (ev.isSecondYellow) existing.isSecondYellow = true
       } else {
         result.push({
           type: ev.type,
@@ -385,6 +406,7 @@
           clocks: [ev.clock],
           isOG: ev.isOG,
           isPenalty: ev.isPenalty,
+          isSecondYellow: ev.isSecondYellow,
         })
       }
     }
@@ -480,11 +502,7 @@
                     >
                       {{ homeAbbr }}
                     </button>
-                    <span
-                      v-if="match.status.code === 'ns'"
-                      class="header-mobile-rec"
-                      >{{ match.homeRec }}</span
-                    >
+                    <span class="header-mobile-rec">{{ match.homeRec }}</span>
                     <span class="header-mobile-spacer" />
                     <span
                       v-if="match.status.code !== 'ns'"
@@ -521,11 +539,7 @@
                     >
                       {{ awayAbbr }}
                     </button>
-                    <span
-                      v-if="match.status.code === 'ns'"
-                      class="header-mobile-rec"
-                      >{{ match.awayRec }}</span
-                    >
+                    <span class="header-mobile-rec">{{ match.awayRec }}</span>
                     <span class="header-mobile-spacer" />
                     <span
                       v-if="match.status.code !== 'ns'"
@@ -591,11 +605,7 @@
                   >
                     {{ homeTeam }}
                   </button>
-                  <span
-                    v-if="match.status.code === 'ns'"
-                    class="header-team-rec"
-                    >{{ match.homeRec }}</span
-                  >
+                  <span class="header-team-rec">{{ match.homeRec }}</span>
                 </div>
                 <button
                   class="header-logo-btn"
@@ -685,11 +695,7 @@
                   >
                     {{ awayTeam }}
                   </button>
-                  <span
-                    v-if="match.status.code === 'ns'"
-                    class="header-team-rec"
-                    >{{ match.awayRec }}</span
-                  >
+                  <span class="header-team-rec">{{ match.awayRec }}</span>
                 </div>
               </div>
             </div>
@@ -733,8 +739,16 @@
                     :key="`hc-${i}`"
                     class="event-card-item"
                   >
+                    <span v-if="ev.isSecondYellow" class="event-card-double">
+                      <span
+                        class="event-card event-card-yellow event-card-double-back"
+                      />
+                      <span
+                        class="event-card event-card-red event-card-double-front"
+                      />
+                    </span>
                     <span
-                      v-if="ev.type === 'yellow'"
+                      v-else-if="ev.type === 'yellow'"
                       class="event-card event-card-yellow"
                     />
                     <span v-else class="event-card event-card-red" />
@@ -750,6 +764,7 @@
               </div>
 
               <!-- Away team column -->
+
               <div class="header-events-col header-events-col-away">
                 <!-- Goals line -->
                 <div class="events-goals-line">
@@ -783,8 +798,16 @@
                     :key="`ac-${i}`"
                     class="event-card-item"
                   >
+                    <span v-if="ev.isSecondYellow" class="event-card-double">
+                      <span
+                        class="event-card event-card-yellow event-card-double-back"
+                      />
+                      <span
+                        class="event-card event-card-red event-card-double-front"
+                      />
+                    </span>
                     <span
-                      v-if="ev.type === 'yellow'"
+                      v-else-if="ev.type === 'yellow'"
                       class="event-card event-card-yellow"
                     />
                     <span v-else class="event-card event-card-red" />
@@ -801,6 +824,7 @@
             </div>
 
             <!-- Close button -->
+
             <button
               class="modal-close"
               aria-label="Close"
@@ -1527,16 +1551,27 @@
     background: #e03030;
   }
 
-  .event-name {
-    font-weight: 300;
+  /* Second-yellow red card — yellow square behind, red square angled in front */
+  .event-card-double {
+    display: inline-flex;
+    position: relative;
+    width: 0.75rem;
+    height: 0.7rem;
+    flex-shrink: 0;
   }
 
-  .event-og {
-    font-size: 0.7rem;
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    color: oklab(100% 0 0 / 0.5);
-    text-transform: uppercase;
+  .event-card-double-back {
+    position: absolute;
+    left: 0;
+    top: 0.05rem;
+  }
+
+  .event-card-double-front {
+    position: absolute;
+    left: 0.2rem;
+    top: 0;
+    transform: rotate(14deg);
+    box-shadow: -1px 0 2px oklab(0% 0 0 / 0.4);
   }
 
   .event-clock {

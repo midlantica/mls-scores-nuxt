@@ -192,7 +192,7 @@
           />
         </span>
         <span class="team-name-text">{{ match.home }}</span>
-        <span v-if="isNS" class="team-rec">{{ match.homeRec }}</span>
+        <span class="team-rec">{{ match.homeRec }}</span>
       </div>
       <div v-if="!isNS" class="score-cell">
         <span
@@ -223,7 +223,7 @@
           />
         </span>
         <span class="team-name-text">{{ match.away }}</span>
-        <span v-if="isNS" class="team-rec">{{ match.awayRec }}</span>
+        <span class="team-rec">{{ match.awayRec }}</span>
       </div>
       <div v-if="!isNS" class="score-cell">
         <span
@@ -409,11 +409,12 @@
   }
 
   .team-rec {
-    font-size: 1rem;
+    font-size: 0.75rem;
     font-weight: 300;
-    color: oklab(80% 0 0);
+    color: oklab(80% 0 0 / 0.6);
     white-space: nowrap;
     flex-shrink: 0;
+    margin-right: 0.15rem;
   }
 
   /* Score cell wraps the number + optional winner caret side-by-side */
@@ -423,11 +424,12 @@
     gap: 0.2rem;
     position: relative;
     right: 3px;
+    margin-left: 0.25rem;
   }
 
   .team-score {
-    font-size: 0.9375rem;
-    font-weight: 100;
+    font-size: 1.0625rem;
+    font-weight: 700;
     color: var(--color-text-primary);
     line-height: 1;
     min-width: 1ch;
@@ -436,8 +438,8 @@
 
   /* Live/HT scores: bolder so they read as a live scoreline */
   .game-block-live .team-score {
-    font-weight: 400;
-    font-size: 1.05rem;
+    font-weight: 800;
+    font-size: 1.1875rem;
   }
 
   /* FT winner: hard white */

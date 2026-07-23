@@ -168,6 +168,7 @@ export default defineEventHandler(async (event) => {
       clock: string
       isOG?: boolean
       isPenalty?: boolean
+      isSecondYellow?: boolean
     }
 
     const matchEvents: MatchEvent[] = []
@@ -247,7 +248,18 @@ export default defineEventHandler(async (event) => {
         }
       } else if (typeSlug === 'red-card') {
         if (lastName) {
-          matchEvents.push({ teamId, type: 'red', lastName, clock })
+          // ESPN's `text` field distinguishes a second-yellow red
+          // ("Second yellow card to X...") from a straight red
+          // ("X is shown the red card...") — no separate type slug exists.
+          const text = ((ke.text as string | undefined) ?? '').toLowerCase()
+          const isSecondYellow = text.includes('second yellow')
+          matchEvents.push({
+            teamId,
+            type: 'red',
+            lastName,
+            clock,
+            isSecondYellow,
+          })
         }
       }
     }
