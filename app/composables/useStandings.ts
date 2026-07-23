@@ -1,3 +1,5 @@
+import { TEAM_CONFERENCE } from '~/composables/useMyTeam'
+
 export interface StandingEntry {
   rank: number
   rankChange: number
@@ -44,6 +46,7 @@ export function useStandings() {
         const standingsData = conf.standings as Record<string, unknown>
         const entries =
           (standingsData?.entries as Array<Record<string, unknown>>) ?? []
+        const seen = new Set<string>()
         return {
           name,
           entries: entries
@@ -72,9 +75,21 @@ export function useStandings() {
                   )?.summary as string) ?? '',
               }
             })
+            // ESPN's standings API has occasionally returned one conference's
+            // entries polluted with teams from the other conference (or
+            // duplicates). Guard against that by cross-checking our known
+            // conference map and deduping by team name.
+            .filter((e) => {
+              if (TEAM_CONFERENCE[e.team] && TEAM_CONFERENCE[e.team] !== name)
+                return false
+              if (seen.has(e.team)) return false
+              seen.add(e.team)
+              return true
+            })
             .sort((a, b) => a.rank - b.rank),
         }
       })
+
       loaded.value = true
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to load standings'
